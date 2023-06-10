@@ -1,5 +1,9 @@
 {
     "drive_path": "./images",
     "slideshow_duration": 2000,
-    "calendar_update_duration": 5000
+    "calendar_update_duration": 5000,
+
+    "google_api_key": "",
+    "google_client_id": "",
+    "google_client_secret": ""
 }
