@@ -17,7 +17,15 @@
     <div id="slideshow"></div>
 
     <script src="https://apis.google.com/js/api.js"></script>
+    <script src="slideshow.js"></script>
+    <script src="calendar.js"></script>
+    <script src="common.js"></script>
     <script>
+        const config = get_config();
+
+        // Fetch our image list
+        retrieve_image_paths(config.images_path)
+
         // Function to load the Google Calendar API
         function handleClientLoad() {
             gapi.load('client:auth2', initClient);
@@ -86,6 +94,46 @@
         // Call the functions to initialize the page
         handleClientLoad();
         startSlideshow();
+
+        function readImageFilesFromPath(filePath, callback) {
+            const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif']; // Add more extensions if needed
+        
+            // Check if FileReader is supported
+            if (typeof FileReader !== 'undefined') {
+            const inputElement = document.createElement('input');
+            inputElement.type = 'file';
+            inputElement.multiple = true;
+        
+            // Event listener for when files are selected
+            inputElement.addEventListener('change', function (event) {
+                const files = event.target.files;
+                const imageFiles = [];
+        
+                // Iterate over the selected files
+                for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+        
+                // Check if the file is an image file
+                if (imageExtensions.includes(fileExtension)) {
+                    imageFiles.push(file);
+                }
+                }
+        
+                // Pass the image files to the callback function
+                if (typeof callback === 'function') {
+                callback(imageFiles);
+                }
+            });
+        
+            // Trigger the file input dialog
+            inputElement.click();
+            } else {
+            // FileReader is not supported
+            console.error('FileReader is not supported in this browser.');
+            }
+        }
+  
     </script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </body>

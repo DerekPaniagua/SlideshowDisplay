@@ -1,4 +1,4 @@
-function readImageFilesFromPath(filePath, callback) {
+function retrieve_image_paths(filePath, callback) {
     const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif']; // Add more extensions if needed
   
     // Check if FileReader is supported
