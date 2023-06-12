@@ -1,2 +1,7 @@
-*.log
 .vscode
+# Logs
+logs
+*.log
+
+build
+node_modules

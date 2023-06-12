@@ -1,0 +1,18 @@
+#calendar {
+    height: 50%;
+}
+
+#slideshow {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    height: 100%;
+}
+
+.image {
+    width: auto;
+    height: 50%;
+    object-fit: fill;
+    position: absolute;
+    bottom: 0;
+}

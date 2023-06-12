@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Google Calendar and Slideshow</title>
+    <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+    <div id="calendar">calendar goes here</div>
+    <div id="slideshow">
+        <img id="slideshow-image" class="image" src="https://localhost:3000/image"/>
+    </div>
+</body>
+<script>
+    function fetch_image() {
+        var image_element = document.getElementById("slideshow-image");
+        image_element.src = `http://localhost:3000/image?${new Date().getTime()}`;
+        console.log("Retireving new image")
+    };
+    fetch_image();
+    setInterval(fetch_image, 5000);
+</script>
+</html>
