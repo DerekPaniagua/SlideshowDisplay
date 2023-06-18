@@ -5,3 +5,5 @@ logs
 
 build
 node_modules
+
+**/credentials.json
