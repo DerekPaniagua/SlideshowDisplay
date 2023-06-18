@@ -44,7 +44,6 @@ app.get("/image", async (req, res) => {
         last_index = 0;
     }
     let full_path = path.join(__dirname, '/images', image_list[last_index]);
-    let image_exists = fs.existsSync(full_path);
     res.sendFile(full_path);
     last_index += 1;
 });
