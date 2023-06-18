@@ -1,7 +1,10 @@
-.container {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
+.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    overflow: auto;    
 }
 
 .box {
@@ -12,29 +15,14 @@
 }
 
 .slideshow {
-    object-fit: contain;
-    height: inherit;
-    z-index: 0;
+    object-fit: cover;
+    height: 100%;
+    width: 100%;
 }
 
-.calendar {
-    height: inherit;
+.calendar-background {
+    background-image: url("pandenlogo.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
 }
-/* #calendar {
-    height: 50vh;
-}
-
-#slideshow {
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    height: 50vh;
-}
-
-#slideshow-image {
-    width: auto;
-    height: 50%;
-    object-fit: fill;
-    position: absolute;
-    bottom: 0;
-} */

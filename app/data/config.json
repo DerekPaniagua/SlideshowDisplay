@@ -3,5 +3,4 @@
     "google_credentials_path": "./app/data/credentials.json",
     "slideshow_duration": 2000,
     "calendar_update_duration": 5000
-
 }

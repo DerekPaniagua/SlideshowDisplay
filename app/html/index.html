@@ -3,11 +3,10 @@
 <head>
     <title>Google Calendar and Slideshow</title>
     <link rel="stylesheet" href="/app.css">
-</head>
+    <link rel="stylesheet" href="https://uicdn.toast.com/calendar/latest/toastui-calendar.min.css" />
 <body>
-    <div class="container">
-        <div id="calendar" class="box">
-            <iframe class="calendar" src="https://calendar.google.com/calendar/embed?height=1080&wkst=1&bgcolor=%23ffffff&ctz=America%2FDenver&mode=WEEK&showTitle=0&showDate=0&showNav=0&showPrint=0&showTabs=0&showCalendars=0&showTz=0&src=NGU4OGRlOWVkNGE0YmNkYzExOTFhZTcxNDdmMTU1NzNiMDdjMTc5N2QyZGU0OTRjMjBiNzJhY2Q5OTA1ZWMyYUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t&color=%23B39DDB" style="border-width:0" width="960" height="1080" frameborder="0" scrolling="no"></iframe>
+    <div class="fullscreen">
+        <div id="calendar" class="box calendar-background">
         </div>
         <div id="slideshow" class="box">
             <img id="slideshow-image" class="slideshow" src="https://localhost:3000/image"/>
@@ -15,7 +14,9 @@
 
     </div>
 </body>
+<script src="https://uicdn.toast.com/calendar/latest/toastui-calendar.min.js"></script>
 <script>
+    
     function fetch_image() {
         var image_element = document.getElementById("slideshow-image");
         image_element.src = `http://localhost:3000/image?${new Date().getTime()}`;
@@ -23,5 +24,32 @@
     };
     fetch_image();
     setInterval(fetch_image, 5000);
+
+    const calendar = new Calendar('#calendar', {
+        defaultView: 'week',
+        template: {
+            time(event) {
+                const { start, end, title } = event;
+
+                return `<span style="color: white;">${formatTime(start)}~${formatTime(end)} ${title}</span>`;
+            },
+            allday(event) {
+                return `<span style="color: gray;">${event.title}</span>`;
+            },
+        },
+        calendars: [
+            {
+                id: 'cal1',
+                name: 'Personal',
+                backgroundColor: '#03bd9e',
+            },
+            {
+                id: 'cal2',
+                name: 'Work',
+                backgroundColor: '#00a9ff',
+            },
+        ],
+    });
+
 </script>
 </html>
