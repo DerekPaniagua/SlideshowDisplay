@@ -25,12 +25,22 @@ app.get("/", (req, res) => {
 });
 
 app.get("/image", async (req, res) => {
-    // Refresh our images everytime the slideshow restarts
+    // Refresh our images everytime the slideshow restarts and our file names have changed
     if (image_list.length === last_index){
         let drive = slideshow.get_google_drive(config.google_credentials_path);
-        image_list = await slideshow.get_file_names(drive);
-        image_list.sort();
-        await slideshow.refresh_images(config.images_path, drive);
+        let new_image_list = await slideshow.get_file_names(drive);
+        let hasChanged = false;
+        for (let image_name of new_image_list){
+            if (!image_list.includes(image_name)){
+                hasChanged = true;
+                break;
+            }
+        }
+        if (hasChanged || new_image_list.length !== image_list.length){
+            image_list = new_image_list;
+            image_list.sort();
+            await slideshow.refresh_images(config.images_path, drive);
+        }
         last_index = 0;
     }
     let full_path = path.join(__dirname, '/images', image_list[last_index]);
