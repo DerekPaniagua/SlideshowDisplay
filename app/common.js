@@ -1,6 +1,10 @@
-import fs from 'fs';
+const fs = require('fs');
 
-export function get_config(){
+function get_config(){
     const config = fs.readFileSync('./app/data/config.json', 'utf8');
     return JSON.parse(config);
+}
+
+module.exports = {
+    get_config
 }

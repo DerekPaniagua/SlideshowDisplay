@@ -9,3 +9,4 @@ node_modules
 **/credentials.json
 
 /app/images
+.DS_Store

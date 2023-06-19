@@ -1,17 +1,13 @@
-import express from "express";
-import path from 'path';
-import fs from 'fs';
-
-
-// Local files
-import { get_config } from './common';
-import * as slideshow from "./slideshow"
+const express = require('express');
+const slideshow = require('./slideshow');
+const common = require('./common');
+const path = require('node:path');
 
 // Setup
-let image_list:string[] = [];
+let image_list = [];
 let last_index = 0;
 
-const config = get_config();
+const config = common.get_config();
 
 const app = express();
 app.use(express.static(__dirname + '/public'));
