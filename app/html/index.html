@@ -22,7 +22,7 @@
     fetch(`${document.URL}config`).then(async (res) => {
         const config = await res.json();
         console.log(config);
-        set_image();
+        await set_image();
         setInterval(set_image, config.slideshow_duration);
     }).catch((reason) => {
         console.error(reason);
