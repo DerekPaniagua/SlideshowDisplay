@@ -8,4 +8,4 @@ npm run start &
 
 sleep 10
 
-firefox --kiosk http://localhost:3000
+firefox-esr --kiosk http://localhost:3000
