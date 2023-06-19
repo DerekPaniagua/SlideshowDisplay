@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon -L app/app.ts",
-    "start:prod": "npm run build && node ./build/app/app.js",
+    "start:prod": "npm run build && node ./build/app.js",
     "build": "tsc"
   },
   "keywords": [],
