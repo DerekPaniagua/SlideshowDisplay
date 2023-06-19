@@ -14,7 +14,7 @@ let last_index = 0;
 const config = get_config();
 
 const app = express();
-app.use(express.static(__dirname + '/css'));
+app.use(express.static(__dirname + '/public'));
 app.listen(3000, () => {
     console.log("Application Listening on port 3000");
 });
@@ -23,6 +23,14 @@ app.listen(3000, () => {
 app.get("/", (req, res) => {
     res.sendFile(`${__dirname}/html/index.html`);
 });
+
+app.get("/config", (req, res) => {
+    let html_config = {
+        slideshow_duration: config.slideshow_duration,
+        calendar_update_duration: config.calendar_update_duration,
+    };
+    res.json(html_config);
+})
 
 app.get("/image", async (req, res) => {
     // Refresh our images everytime the slideshow restarts and our file names have changed

@@ -1,0 +1,45 @@
+.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    overflow: auto;    
+}
+
+.box {
+    height: 50vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+}
+
+.calendar-background {
+    background-image: url("../pandenlogo.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.slideshow {
+    position: absolute;
+    object-fit: cover;
+    height: 100%;
+    width: 100%;
+}
+
+.top {
+    z-index: 1;
+}
+
+.fade-in {
+    opacity: 1;
+    transition: opacity 3s;
+  }
+  
+.fade-out {
+    opacity: 0;
+    transition: opacity 3s;
+}

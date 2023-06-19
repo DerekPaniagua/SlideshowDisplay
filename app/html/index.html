@@ -2,54 +2,51 @@
 <html>
 <head>
     <title>Google Calendar and Slideshow</title>
-    <link rel="stylesheet" href="/app.css">
+    <link rel="stylesheet" href="/css/app.css">
     <link rel="stylesheet" href="https://uicdn.toast.com/calendar/latest/toastui-calendar.min.css" />
 <body>
     <div class="fullscreen">
         <div id="calendar" class="box calendar-background">
         </div>
         <div id="slideshow" class="box">
-            <img id="slideshow-image" class="slideshow" src="https://localhost:3000/image"/>
+            <img id="slideshow-image-0" class="slideshow top" src=""/>
+            <img id="slideshow-image-1" class="slideshow" src=""/>
         </div>
 
     </div>
 </body>
-<script src="https://uicdn.toast.com/calendar/latest/toastui-calendar.min.js"></script>
 <script>
-    
-    function fetch_image() {
-        var image_element = document.getElementById("slideshow-image");
-        image_element.src = `http://localhost:3000/image?${new Date().getTime()}`;
-        console.log("Retireving new image")
-    };
-    fetch_image();
-    setInterval(fetch_image, 5000);
+    var next_img = 0;
 
-    const calendar = new Calendar('#calendar', {
-        defaultView: 'week',
-        template: {
-            time(event) {
-                const { start, end, title } = event;
-
-                return `<span style="color: white;">${formatTime(start)}~${formatTime(end)} ${title}</span>`;
-            },
-            allday(event) {
-                return `<span style="color: gray;">${event.title}</span>`;
-            },
-        },
-        calendars: [
-            {
-                id: 'cal1',
-                name: 'Personal',
-                backgroundColor: '#03bd9e',
-            },
-            {
-                id: 'cal2',
-                name: 'Work',
-                backgroundColor: '#00a9ff',
-            },
-        ],
+    // Gets next image in slideshow
+    fetch(`${document.URL}config`).then(async (res) => {
+        const config = await res.json();
+        console.log(config);
+        set_image();
+        setInterval(set_image, config.slideshow_duration);
+    }).catch((reason) => {
+        console.error(reason);
+        console.error("Failed to fetch config!")
     });
 
+    async function set_image() {
+        var top_image_element = document.getElementById(`slideshow-image-0`);
+        var bottom_image_element = document.getElementById(`slideshow-image-1`);
+        var new_image_res = await fetch(`${document.URL}image`);
+        var new_image = await new_image_res.blob();
+        
+        if (next_img === 0){ // Top image is invisible
+            console.log("updating top");
+            top_image_element.src = URL.createObjectURL(new_image);
+            top_image_element.classList.remove("fade-out");
+            top_image_element.classList.add("fade-in");
+        } else { // Top image is visible
+            console.log("updating bottom");
+            bottom_image_element.src = URL.createObjectURL(new_image);
+            top_image_element.classList.remove("fade-in");
+            top_image_element.classList.add("fade-out");
+        }
+        next_img = (next_img + 1) % 2;
+    };
 </script>
 </html>
