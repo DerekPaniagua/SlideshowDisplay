@@ -22,6 +22,9 @@ async function refresh_images(images_path, drive) {
         return accepted_file_types.includes(file_type);
     });
     images_to_download.sort((a, b) => (a.name > b.name) ? 1 : -1)
+
+    check_and_create_folder(images_path);
+
     // Clear image cache folder
     for (let image of fs.readdirSync(images_path)){
         let file_path = path.join(images_path, image);
@@ -63,6 +66,15 @@ async function get_file_names(drive){
     });
     return image_files.map(file => file.name);
 }
+
+function check_and_create_folder(folder_path) {
+    if (!fs.existsSync(folder_path)) {
+      fs.mkdirSync(folder_path);
+      console.log(`Folder '${folder_path}' created.`);
+    } else {
+      console.log(`Folder '${folder_path}' already exists.`);
+    }
+  }
 
 module.exports = {
     get_google_drive,
