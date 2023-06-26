@@ -1,3 +1,47 @@
+/* Custom Full Calendar */
+
+html * {
+    font-family: Arial;
+    text-transform: uppercase;
+}
+
+.fc-event {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-color: rgb(0, 0, 0, 0.2);
+    color: white;
+    backdrop-filter: blur(2px);
+  }
+
+/* Hours Text */
+.fc-timegrid-slot-label-cushion {
+    color: gray;
+    font-size: 12px;
+}
+
+/* Week Days Text */
+.fc-col-header-cell-cushion {
+    color: #bfa26a;
+    font-size: 12px;
+}
+
+/* All Day  */
+.fc-timegrid-axis-cushion {
+    color: gray;
+    font-size: 12px;
+}
+
+.fc-event-time {
+    display: none;
+}
+
+.fc-event-title {
+    color:rgb(39, 39, 39);
+    font-size: 10px;
+}
+
+
+/* Rest of the Project */
+
 .fullscreen {
     position: fixed;
     top: 0;

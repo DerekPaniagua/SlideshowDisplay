@@ -1,4 +1,5 @@
 const express = require('express');
+const calendar = require('./calendar')
 const slideshow = require('./slideshow');
 const common = require('./common');
 const path = require('node:path');
@@ -43,8 +44,9 @@ app.get("/image", async (req, res) => {
     last_index = (last_index + 1) % image_list.length;
 });
 
-app.get("/test", (req, res) => {
-    res.end();
+app.get("/calendar", async (req, res) => {
+    var events = await calendar.getEventsFromCurrentWeek(config.google_credentials_path);
+    res.send(events);
 });
 
 // Helper Fucntions
