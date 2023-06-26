@@ -1,4 +1,5 @@
 #!/bin/bash
+source ~/.bashrc
 cd ~/Repos/SlideshowDisplay
 git pull
 npm install
