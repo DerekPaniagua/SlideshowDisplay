@@ -22,13 +22,10 @@ async function getEventsFromCurrentWeek(key_file_path) {
     const endDate = moment().endOf('week').toISOString();
 
     try {
-        // const responseinsert = await calendar.calendarList.insert({
-        //     resource: {
-        //         id: "4e88de9ed4a4bcdc1191ae7147f15573b07c1797d2de494c20b72acd9905ec2a@group.calendar.google.com"
-        //     }
-        // });
         const calendars = await calendar.calendarList.list();
-
+        if (calendar.length < 1) {
+            throw new Error("Service Account has no calendars! Must insert calendar...");
+        }
 
         const response = await calendar.events.list({
             calendarId: calendars.data.items[0].id, // Use 'primary' for the primary calendar
@@ -49,8 +46,6 @@ function convertToFullCalendarEvent(google_calendar_events){
         if (event.start.dateTime){
             fullCalendarEvents.push({
                 id: event.id,
-                // startStr: event.start.date,
-                // endStr: event.end.date,
                 start: event.start.dateTime,
                 end: event.end.dateTime,
                 title: event.summary,
@@ -58,8 +53,6 @@ function convertToFullCalendarEvent(google_calendar_events){
         )} else {
             fullCalendarEvents.push({
                 id: event.id,
-                // startStr: event.start.date,
-                // endStr: event.end.date,
                 start: event.start.date,
                 end: event.end.date,
                 title: event.summary,
