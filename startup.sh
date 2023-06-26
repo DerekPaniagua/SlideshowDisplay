@@ -7,5 +7,5 @@ git pull
 npm install
 npm run start:prod &
 sleep 5
-chromium-browser http://localhost:3000 --kiosk &
 xdotool mousemove 0 0
+chromium-browser http://localhost:3000 --kiosk
