@@ -6,7 +6,6 @@ html * {
 
 .fc-event {
     background-color: rgba(0, 0, 0, 0.6);
-    border-color: rgb(0, 0, 0, 0.6);
     color: white;
     backdrop-filter: blur(5px);
 }
@@ -46,6 +45,15 @@ html * {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.fc-v-event {
+    border: none;
+
+}
+
+.fc-h-event {
+    border: none;
 }
 
 
