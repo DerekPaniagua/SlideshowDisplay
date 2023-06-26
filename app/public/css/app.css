@@ -6,8 +6,8 @@ html * {
 }
 
 .fc-event {
-    background-color: rgba(0, 0, 0, 0.2);
-    border-color: rgb(0, 0, 0, 0.2);
+    background-color: rgba(0, 0, 0, 0.6);
+    border-color: rgb(0, 0, 0, 0.6);
     color: white;
     backdrop-filter: blur(5px);
   }
@@ -35,7 +35,7 @@ html * {
 }
 
 .fc-event-title {
-    color:rgb(211, 211, 211);
+    color:rgb(236, 236, 236);
     font-size: 14px;
 }
 
