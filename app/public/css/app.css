@@ -10,6 +10,32 @@ html * {
     backdrop-filter: blur(5px);
 }
 
+/* Event text */
+.fc-event-title {
+    text-align: center;
+    color: rgb(255, 255, 255);
+}
+
+.fc-event-title-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Remove box border */
+.fc-v-event {
+    border: none;
+
+}
+.fc-h-event {
+    border: none;
+}
+
+/* Remove white box shadow */
+.fc-timegrid-event-harness-inset .fc-timegrid-event {
+    box-shadow: none;
+}
+
 /* Hours Text */
 .fc-timegrid-slot-label-cushion {
     color: gray;
@@ -31,31 +57,10 @@ html * {
     text-transform: uppercase;
 }
 
+/* Disables showing time in event title */
 .fc-event-time {
     display: none;
 }
-
-.fc-event-title {
-    text-align: center;
-    color: rgb(255, 255, 255);
-    /* font-size: 14px; */
-}
-
-.fc-event-title-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.fc-v-event {
-    border: none;
-
-}
-
-.fc-h-event {
-    border: none;
-}
-
 
 /* Rest of the Project */
 #calendar {

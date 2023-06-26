@@ -63,7 +63,8 @@ app.get("/image", async (req, res) => {
 app.get("/calendar", async (req, res) => {
     try {
         console.log("Fetching calendar events...");
-        var events = await calendar.getEventsFromCurrentWeek(config.google_credentials_path);
+        var g_calendar = calendar.get_google_calendar(config.google_credentials_path);
+        var events = await calendar.get_events(g_calendar);
         res.send(events);
         console.log(`Successfully fetched ${events.length} events!`);
     } catch (err) {
@@ -73,6 +74,19 @@ app.get("/calendar", async (req, res) => {
         });
     }
 });
+
+app.post("/calendar/insert:id", async (req, res) => {
+    try {
+        var g_calendar = calendar.get_google_calendar(config.google_credentials_path);
+        await calendar.insert_calendar(g_calendar, req.params.id);
+        res.end();
+    } catch (err) {
+        console.error(err);
+        res.status(500).send({
+            message: `${err}`
+        })
+    }
+})
 
 // Helper Fucntions
 async function check_and_update_images() {
