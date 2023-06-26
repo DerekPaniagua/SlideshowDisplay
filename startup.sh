@@ -1,5 +1,5 @@
 #!/bin/bash
-cs ~/Repos/SlideshowDisplay
+cd ~/Repos/SlideshowDisplay
 git pull
 npm install
 npm run start &
