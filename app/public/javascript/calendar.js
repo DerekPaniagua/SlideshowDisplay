@@ -9,7 +9,6 @@ var calendar = new FullCalendar.Calendar(calendar_element, {
     nowIndicator: true,
     slotEventOverlap: true,
     slotDuration: '01:00:00',
-    // height: '100%',
     expandRows: true,
 });
 

@@ -2,7 +2,6 @@
 
 html * {
     font-family: Arial;
-    text-transform: uppercase;
 }
 
 .fc-event {
@@ -10,24 +9,27 @@ html * {
     border-color: rgb(0, 0, 0, 0.6);
     color: white;
     backdrop-filter: blur(5px);
-  }
+}
 
 /* Hours Text */
 .fc-timegrid-slot-label-cushion {
     color: gray;
     font-size: 12px;
+    text-transform: uppercase;
 }
 
 /* Week Days Text */
 .fc-col-header-cell-cushion {
     color: #bfa26a;
     font-size: 12px;
+    text-transform: uppercase;
 }
 
 /* All Day  */
 .fc-timegrid-axis-cushion {
     color: gray;
     font-size: 12px;
+    text-transform: uppercase;
 }
 
 .fc-event-time {
@@ -35,8 +37,15 @@ html * {
 }
 
 .fc-event-title {
-    color:rgb(236, 236, 236);
-    font-size: 14px;
+    text-align: center;
+    color: rgb(255, 255, 255);
+    /* font-size: 14px; */
+}
+
+.fc-event-title-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 
@@ -52,7 +61,7 @@ html * {
     left: 0;
     bottom: 0;
     right: 0;
-    overflow: auto;    
+    overflow: auto;
 }
 
 .box {
@@ -85,8 +94,8 @@ html * {
 .fade-in {
     opacity: 1;
     transition: opacity 3s;
-  }
-  
+}
+
 .fade-out {
     opacity: 0;
     transition: opacity 3s;
