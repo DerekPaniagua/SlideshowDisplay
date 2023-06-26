@@ -5,6 +5,6 @@ export NVM_DIR="$HOME/.nvm"
 cd ~/Repos/SlideshowDisplay
 git pull
 npm install
-npm run start &
+npm run start:prod &
 sleep 5
 chromium-browser http://localhost:3000 --kiosk

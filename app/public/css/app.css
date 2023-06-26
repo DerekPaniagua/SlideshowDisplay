@@ -2,6 +2,7 @@
 
 html * {
     font-family: Arial;
+    cursor: none;
 }
 
 .fc-event {
