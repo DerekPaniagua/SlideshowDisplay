@@ -3,8 +3,8 @@ var next_img = 0;
 // Gets next image in slideshow
 fetch(`${document.URL}config`).then(async (res) => {
     const config = await res.json();
-    await set_image();
     setInterval(set_image, config.slideshow_duration);
+    set_image();
 }).catch((reason) => {
     console.error(reason);
     console.error("Failed to fetch config for slideshow!")

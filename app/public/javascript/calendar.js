@@ -17,8 +17,8 @@ calendar.render();
 // Set Events to be updated according to config
 fetch(`${document.URL}config`).then(async (res) => {
     const config = await res.json();
-    updateEvents();
     setInterval(updateEvents, config.calendar_update_duration);
+    updateEvents();
 }).catch((reason) => {
     console.error(reason);
     console.error("Failed to fetch config for calendar!")
