@@ -44,21 +44,28 @@ async function get_events(google_calendar) {
         });
 
         const events = response.data.items;
-        return convert_google_event_to_full_calendar_event(events);
+        const colors_response = await google_calendar.colors.get();
+        const colors = colors_response.data.event;
+        return convert_google_event_to_full_calendar_event(events, colors);
     } catch (error) {
         console.error('Error retrieving calendar events:', error.message);
     }
 }
 
-function convert_google_event_to_full_calendar_event(google_calendar_events) {
+function convert_google_event_to_full_calendar_event(google_calendar_events, colors) {
     var fullCalendarEvents = [];
     for (var event of google_calendar_events) {
+        var color = 'rgba(0, 0, 0, 0.8)'; // Default
+        if (event.colorId) {
+            color = colors[Number(event.colorId)].background + 'cc';
+        }
         if (event.start.dateTime) {
             fullCalendarEvents.push({
                 id: event.id,
                 start: event.start.dateTime,
                 end: event.end.dateTime,
                 title: event.summary,
+                color
             }
             )
         } else {
@@ -67,7 +74,8 @@ function convert_google_event_to_full_calendar_event(google_calendar_events) {
                 start: event.start.date,
                 end: event.end.date,
                 title: event.summary,
-                allDay: true
+                allDay: true,
+                color
             });
         };
     }
