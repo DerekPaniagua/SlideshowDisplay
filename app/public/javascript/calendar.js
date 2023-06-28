@@ -4,7 +4,7 @@ var calendar = new FullCalendar.Calendar(calendar_element, {
     initialView: 'timeGridWeek',
     slotMinTime: '06:00:00',
     slotMaxTime: '18:00:00',
-    hiddenDays: [0],
+    hiddenDays: [0, 6],
     headerToolbar: false,
     nowIndicator: true,
     slotEventOverlap: true,

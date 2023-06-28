@@ -81,18 +81,7 @@ app.get("/calendar", async (req, res) => {
     }
 });
 
-app.post("/calendar/insert:id", async (req, res) => {
-    try {
-        var g_calendar = calendar.get_google_calendar(config.google_credentials_path);
-        await calendar.insert_calendar(g_calendar, req.params.id);
-        res.end();
-    } catch (err) {
-        console.error(err);
-        res.status(500).send({
-            message: `${err}`
-        })
-    }
-})
+
 
 // Helper Fucntions
 async function check_and_update_images() {
