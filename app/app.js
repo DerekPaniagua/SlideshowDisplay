@@ -65,6 +65,12 @@ app.get("/calendar", async (req, res) => {
         console.log("Fetching calendar events...");
         var g_calendar = calendar.get_google_calendar(config.google_credentials_path);
         var events = await calendar.get_events(g_calendar);
+        if (!events) {
+            res.status(500).send({
+                message: "Failed to retireve calendar events"
+            })
+            return
+        }
         res.send(events);
         console.log(`Successfully fetched ${events.length} events!`);
     } catch (err) {
@@ -103,9 +109,9 @@ async function check_and_update_images() {
         }
         if (hasChanged || new_image_list.length !== image_list.length) {
             console.info("Change detected, refreshing images...");
+            await slideshow.refresh_images(config.images_path, drive);
             image_list = new_image_list;
             image_list.sort();
-            await slideshow.refresh_images(config.images_path, drive);
             console.info(`Successfully fetched ${image_list.length} images!`);
         } else {
             console.info("No update required!");
