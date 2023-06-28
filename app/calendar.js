@@ -41,6 +41,7 @@ async function get_events(google_calendar) {
             calendarId: calendars.data.items[0].id, // Use 'primary' for the primary calendar
             timeMin: startDate,
             timeMax: endDate,
+            singleEvents: true,
         });
 
         const events = response.data.items;
