@@ -1,3 +1,5 @@
+setInterval(() => {location.reload();}, 4 * 60 * 60 * 1000); // Reload every six hours
+
 var next_img = 0;
 
 // Gets next image in slideshow
