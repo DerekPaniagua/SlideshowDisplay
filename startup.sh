@@ -22,6 +22,10 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 cd ~/Repos/slideshowdisplay
 echo "Connecting to Wifi..."
+nmcli radio wifi off
+sleep 5
+nmcli radio wifi on
+sleep 5
 check_internet
 git pull &
 echo "Updating and running server..."
