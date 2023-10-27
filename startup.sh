@@ -32,7 +32,7 @@ echo "Updating and running server..."
 sleep 5
 npm install
 npm run start:prod &
-echo "Opening Chrome..."
+echo "Opening Firefox..."
 sleep 5
 xdotool mousemove 0 0
-chromium-browser http://localhost:3000 --kiosk
+firefox http://localhost:3000 --kiosk
