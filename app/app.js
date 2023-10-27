@@ -101,6 +101,7 @@ async function check_and_update_images() {
             await slideshow.refresh_images(config.images_path, drive);
             image_list = new_image_list;
             image_list.sort();
+            last_index = 0;
             console.info(`Successfully fetched ${image_list.length} images!`);
         } else {
             console.info("No update required!");
