@@ -20,19 +20,14 @@ check_internet() {
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-cd ~/Repos/slideshowdisplay
+cd ~/repos/SlideshowDisplay
 echo "Connecting to Wifi..."
-nmcli radio wifi off
-sleep 5
-nmcli radio wifi on
-sleep 5
 check_internet
 git pull &
 echo "Updating and running server..."
 sleep 5
 npm install
 npm run start:prod &
-echo "Opening Firefox..."
+echo "Opening Chromium..."
 sleep 5
-xdotool mousemove 0 0
-firefox http://localhost:3000 --kiosk
+chromium http://localhost:3000 --kiosk
