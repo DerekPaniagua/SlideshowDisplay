@@ -28,6 +28,6 @@ echo "Updating and running server..."
 sleep 5
 npm install
 npm run start:prod &
-echo "Opening Chromium..."
+echo "Opening Browser..."
 sleep 5
-chromium http://localhost:3000 --kiosk
+firefox http://localhost:3000 --kiosk
