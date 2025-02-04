@@ -23,11 +23,10 @@ export NVM_DIR="$HOME/.nvm"
 cd ~/repos/SlideshowDisplay
 echo "Connecting to Wifi..."
 check_internet
-git pull &
 echo "Updating and running server..."
-sleep 5
+git pull
 npm install
 npm run start:prod &
 echo "Opening Browser..."
 sleep 5
-firefox http://localhost:3000 --kiosk
+chromium http://localhost:3000 --kiosk &
