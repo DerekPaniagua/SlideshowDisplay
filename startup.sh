@@ -20,7 +20,7 @@ check_internet() {
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-cd ~/repos/SlideshowDisplay
+cd ~/Repos/SlideshowDisplay
 echo "Connecting to Wifi..."
 check_internet
 echo "Updating and running server..."
