@@ -1,4 +1,4 @@
-setInterval(() => {location.reload();}, 4 * 60 * 60 * 1000); // Reload every six hours
+// setInterval(() => {location.reload();}, 4 * 60 * 60 * 1000); // Reload every six hours
 
 var next_img = 0;
 
@@ -15,7 +15,7 @@ fetch(`${document.URL}config`).then(async (res) => {
 async function set_image() {
     var top_image_element = document.getElementById(`slideshow-image-0`);
     var bottom_image_element = document.getElementById(`slideshow-image-1`);
-    var new_image_res = await fetch(`${document.URL}image`);
+    var new_image_res = await fetch(`${document.URL}image`).catch((error) => {console.log(error)});
     var new_image = await new_image_res.blob();
 
     if (next_img === 0) { // Top image is invisible
@@ -31,5 +31,6 @@ async function set_image() {
         top_image_element.classList.remove("fade-in");
         top_image_element.classList.add("fade-out");
     }
+    URL.revokeObjectURL(new_image);
     next_img = (next_img + 1) % 2;
 };
