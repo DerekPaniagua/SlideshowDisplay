@@ -15,18 +15,12 @@ check_internet() {
 }
 
 # Check internet connectivity
-
-
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 cd ~/Repos/SlideshowDisplay
 echo "Connecting to Wifi..."
 check_internet
-echo "Updating and running server..."
+echo "Updating server..."
 git pull
 npm install
-npm run start:prod &
-echo "Opening Browser..."
-sleep 5
-chromium http://localhost:3000 --kiosk &
+echo "Running Servier and Opening Browser..."
+(sleep 10 ; chromium http://localhost:3000 --kiosk) &
+npm run start:prod
