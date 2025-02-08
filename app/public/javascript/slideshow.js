@@ -15,7 +15,10 @@ fetch(`${document.URL}config`).then(async (res) => {
 async function set_image() {
     var top_image_element = document.getElementById(`slideshow-image-0`);
     var bottom_image_element = document.getElementById(`slideshow-image-1`);
-    var new_image_res = await fetch(`${document.URL}image`).catch((error) => {console.log(error)});
+    var new_image_res = await fetch(`${document.URL}image`).catch((error) => {
+        console.error(error);
+        console.error("Failed to retieve image!");
+    });
     var new_image = await new_image_res.blob();
 
     if (next_img === 0) { // Top image is invisible
