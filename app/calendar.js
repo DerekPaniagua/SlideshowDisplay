@@ -33,7 +33,7 @@ async function get_events(google_calendar) {
 
     try {
         const calendars = await google_calendar.calendarList.list();
-        if (calendars.length < 1) {
+        if (calendars.data.items < 1) {
             throw new Error("Service Account has no calendars! Must insert calendar...");
         }
 
