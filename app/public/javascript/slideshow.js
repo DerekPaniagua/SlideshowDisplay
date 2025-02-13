@@ -24,13 +24,13 @@ async function set_image() {
     if (next_img === 0) { // Top image is invisible
         console.log("updating top");
         top_image_element.src = URL.createObjectURL(new_image);
-        await new Promise(r => setTimeout(r, 500));
+        await new Promise(r => setTimeout(r, 1000));
         top_image_element.classList.remove("fade-out");
         top_image_element.classList.add("fade-in");
     } else { // Top image is visible
         console.log("updating bottom");
         bottom_image_element.src = URL.createObjectURL(new_image);
-        await new Promise(r => setTimeout(r, 500));
+        await new Promise(r => setTimeout(r, 1000));
         top_image_element.classList.remove("fade-in");
         top_image_element.classList.add("fade-out");
     }

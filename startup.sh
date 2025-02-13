@@ -22,5 +22,5 @@ echo "Updating server..."
 git pull
 npm install
 echo "Running Servier and Opening Browser..."
-(sleep 10 ; chromium http://localhost:3000 --disable-cache --enable-ipv6 --kiosk) &
+(sleep 10 ; firefox http://localhost:3000 --kiosk) &
 npm run start:prod

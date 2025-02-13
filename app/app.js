@@ -27,6 +27,13 @@ app.get("/", (req, res) => {
     res.sendFile(`${__dirname}/html/index.html`);
 });
 
+app.get("/insert", (req, res) => {
+    return;
+    var g_calendar = calendar.get_google_calendar(config.google_credentials_path);
+    g_calendar.calendarList.delete({calendarId:"calendarIDHere"});
+    // g_calendar.delete(calendarId:"");
+});
+
 app.get("/config", (req, res) => {
     try {
         let html_config = {
