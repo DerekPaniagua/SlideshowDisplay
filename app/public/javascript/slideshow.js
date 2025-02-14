@@ -21,7 +21,8 @@ async function set_image() {
     if (next_img === 0)
     {
         top_image_element.src = `${document.URL}image?${timestamp}`;
-        top_image_element.onload = () => {
+        top_image_element.onload = async () => {
+            await new Promise(r => setTimeout(r, 500))
             top_image_element.classList.remove("fade-out");
             top_image_element.classList.add("fade-in");
         };
@@ -29,7 +30,8 @@ async function set_image() {
     else 
     {
         bottom_image_element.src = `${document.URL}image?${timestamp}`;
-        bottom_image_element.onload = () => {
+        bottom_image_element.onload = async () => {
+            await new Promise(r => setTimeout(r, 500))
             top_image_element.classList.remove("fade-in");
             top_image_element.classList.add("fade-out");
         };
