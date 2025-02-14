@@ -3,6 +3,7 @@ const fs = require('fs');
 const calendar = require('./calendar');
 const slideshow = require('./slideshow');
 const path = require('node:path');
+const nocache = require('nocache')
 
 console.info("Starting up server...");
 
@@ -17,6 +18,7 @@ check_and_update_images().then(() => { setInterval(check_and_update_images, conf
 
 // Web Server
 const app = express();
+app.use(nocache());
 app.use(express.static(`${__dirname}/public`));
 app.listen(3000, () => {
     console.info("Application Listening on port 3000");
