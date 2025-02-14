@@ -1,4 +1,4 @@
-// setInterval(() => {location.reload();}, 4 * 60 * 60 * 1000); // Reload every six hours
+setInterval(() => {location.reload();}, 1 * 60 * 60 * 1000); // Reload every 4 hours
 
 var next_img = 0;
 
