@@ -13,20 +13,26 @@ fetch(`${document.URL}config`).then(async (res) => {
 });
 
 async function set_image() {
+    next_img = (next_img + 1) % 2;
     var top_image_element = document.getElementById(`slideshow-image-0`);
     var bottom_image_element = document.getElementById(`slideshow-image-1`);
     var timestamp = new Date().getTime()
+
     if (next_img === 0)
     {
         top_image_element.src = `${document.URL}image?${timestamp}`;
-        top_image_element.classList.remove("fade-out");
-        top_image_element.classList.add("fade-in");
+        top_image_element.onload = () => {
+            top_image_element.classList.remove("fade-out");
+            top_image_element.classList.add("fade-in");
+        };
     }
     else 
     {
         bottom_image_element.src = `${document.URL}image?${timestamp}`;
-        top_image_element.classList.remove("fade-in");
-        top_image_element.classList.add("fade-out");
+        bottom_image_element.onload = () => {
+            top_image_element.classList.remove("fade-in");
+            top_image_element.classList.add("fade-out");
+        };
     }
 
     // var new_image_res = await fetch(`${document.URL}image`).catch((error) => {
@@ -49,5 +55,4 @@ async function set_image() {
     //     top_image_element.classList.add("fade-out");
     // }
     // URL.revokeObjectURL(new_image);
-    next_img = (next_img + 1) % 2;
 };
