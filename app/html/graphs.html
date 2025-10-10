@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Company Goals – Live 4-Up Dashboard</title>
+    <link rel="stylesheet" href="/css/graphs.css" />
+</head>
+
+<body>
+    <div class="column">
+        <div class="toolbar">
+            <strong>Auto-refreshing dashboard</strong>
+            <span id="status"></span>
+            <button id="refreshBtn" title="Force reload all charts now">Refresh now</button>
+        </div>
+        <div class="graphs-grid">
+            <div class="row">
+                <div class="graph-box">
+                    <iframe
+                        class="graph"
+                        data-srcbase="https://docs.google.com/spreadsheets/d/e/2PACX-1vRVKYQDdaH2PcXk1u5bOu9tgUvkwdcShM4GV52uG6HtAdkdXpaacOG4ilStk2EvaocbfvMF75bSNGDh/pubchart?oid=842741542&format=image">
+                    </iframe>              
+                </div>
+                <div class="graph-box">
+                    <iframe
+                        class="graph"
+                        data-srcbase="https://docs.google.com/spreadsheets/d/e/2PACX-1vRVKYQDdaH2PcXk1u5bOu9tgUvkwdcShM4GV52uG6HtAdkdXpaacOG4ilStk2EvaocbfvMF75bSNGDh/pubchart?oid=1762053975&format=image">
+                    </iframe>
+                </div>
+            </div>
+            <div class="row">
+                <div class="graph-box">
+                    <iframe
+                        class="graph"
+                        data-srcbase="https://docs.google.com/spreadsheets/d/e/2PACX-1vRVKYQDdaH2PcXk1u5bOu9tgUvkwdcShM4GV52uG6HtAdkdXpaacOG4ilStk2EvaocbfvMF75bSNGDh/pubchart?oid=774442977&format=image">
+                    </iframe>
+                </div>
+                <div class="graph-box">
+                    <iframe
+                        class="graph"
+                        data-srcbase="https://docs.google.com/spreadsheets/d/e/2PACX-1vRVKYQDdaH2PcXk1u5bOu9tgUvkwdcShM4GV52uG6HtAdkdXpaacOG4ilStk2EvaocbfvMF75bSNGDh/pubchart?oid=1190850289&format=image">
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const REFRESH_MS = 60000; // refresh every 60s
+
+        function reloadIframes() {
+            const iframes = document.querySelectorAll('iframe[data-srcbase]');
+            const stamp = Date.now();
+            iframes.forEach((el) => {
+                const base = el.getAttribute('data-srcbase');
+                const url = base + (base.includes('?') ? '&' : '?') + 'cb=' + stamp;
+                el.src = url;
+            });
+            const status = document.getElementById('status');
+            if (status) status.textContent = 'Last refreshed: ' + new Date().toLocaleTimeString();
+        }
+
+        reloadIframes();
+        let timer = setInterval(reloadIframes, REFRESH_MS);
+        document.getElementById('refreshBtn').addEventListener('click', reloadIframes);
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) reloadIframes();
+        });
+        window.addEventListener('online', reloadIframes);
+    </script>
+</body>
+
+</html>

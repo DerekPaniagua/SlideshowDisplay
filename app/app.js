@@ -29,6 +29,11 @@ app.get("/", (req, res) => {
     res.sendFile(`${__dirname}/html/index.html`);
 });
 
+
+app.get("/graphs", (req, res) => {
+    res.sendFile(`${__dirname}/html/graphs.html`);
+});
+
 app.get("/insert", (req, res) => {
     return;
     var g_calendar = calendar.get_google_calendar(config.google_credentials_path);
@@ -89,7 +94,6 @@ app.get("/calendar", async (req, res) => {
         });
     }
 });
-
 
 
 // Helper Fucntions
