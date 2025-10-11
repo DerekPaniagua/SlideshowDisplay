@@ -66,8 +66,6 @@ body {
 
 .graph {
     border: none;
-    flex:1 1;
-    max-width: 600px;
+    width: min(100%, 600px, calc(((100vh - 99px) / 2) * 4 / 3));
     aspect-ratio: 4 / 3;
 }
-
