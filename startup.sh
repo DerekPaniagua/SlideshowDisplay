@@ -21,7 +21,9 @@ check_internet
 echo "Updating server..."
 git pull
 npm install
-echo "Running Servier and Opening Browser..."
+echo "Running Server and Opening Browser..."
 npm run start:prod &
 sleep 10
-chromium http://localhost:3000 --kiosk --no-cache --cursor-visible=false --password-store=basic
+chromium http://localhost:3000 --kiosk &
+sleep 3
+wlrctl pointer move 1 1
