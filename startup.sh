@@ -26,4 +26,4 @@ npm run start:prod &
 until curl -s http://localhost:3000 > /dev/null; do sleep 1; done
 chromium http://localhost:3000 --kiosk &
 sleep 2
-unclutter-xfixes --timeout 0 &
+wlrctl pointer move 99999 99999
