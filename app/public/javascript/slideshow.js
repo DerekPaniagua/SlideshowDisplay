@@ -1,60 +1,67 @@
-setInterval(() => {location.reload();}, 1 * 60 * 60 * 1000); // Reload every 4 hours
+// Reload every hour to stay fresh
+setInterval(() => { location.reload(); }, 1 * 60 * 60 * 1000);
 
-var next_img = 0;
+const img0 = document.getElementById('slideshow-image-0');
+const img1 = document.getElementById('slideshow-image-1');
+const images = [img0, img1];
 
-// Gets next image in slideshow
-fetch(`${document.URL}config`).then(async (res) => {
-    const config = await res.json();
-    setInterval(set_image, config.slideshow_duration);
-    set_image();
-}).catch((reason) => {
-    console.error(reason);
-    console.error("Failed to fetch config for slideshow!")
-});
+let visibleIdx = 0; // which image element is currently on top/visible
+
+async function preloadImage(url) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+            // decode() ensures the browser has rasterized it before we swap
+            img.decode ? img.decode().then(resolve).catch(resolve) : resolve();
+        };
+        img.onerror = reject;
+        img.src = url;
+    });
+}
 
 async function set_image() {
-    next_img = (next_img + 1) % 2;
-    var top_image_element = document.getElementById(`slideshow-image-0`);
-    var bottom_image_element = document.getElementById(`slideshow-image-1`);
-    var timestamp = new Date().getTime()
+    const timestamp = Date.now();
+    const url = `${document.URL}image?${timestamp}`;
 
-    if (next_img === 0)
-    {
-        top_image_element.src = `${document.URL}image?${timestamp}`;
-        top_image_element.onload = async () => {
-            await new Promise(r => setTimeout(r, 500))
-            top_image_element.classList.remove("fade-out");
-            top_image_element.classList.add("fade-in");
-        };
+    // Index of the hidden (background) element
+    const hiddenIdx = (visibleIdx + 1) % 2;
+    const hiddenEl = images[hiddenIdx];
+    const visibleEl = images[visibleIdx];
+
+    try {
+        // Pre-load and decode the image fully before touching the DOM
+        await preloadImage(url);
+
+        // Set src on the hidden element (already decoded, paints instantly)
+        hiddenEl.src = url;
+
+        // Wait one frame so the browser has committed the src
+        await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+        // Brief pause before starting transition
+        await new Promise(r => setTimeout(r, 50));
+
+        if (hiddenIdx === 0) {
+            // Bringing img0 to front
+            hiddenEl.classList.remove('fade-out');
+            hiddenEl.classList.add('fade-in');
+        } else {
+            // Sending img0 to back (img1 is underneath)
+            visibleEl.classList.remove('fade-in');
+            visibleEl.classList.add('fade-out');
+        }
+
+        visibleIdx = hiddenIdx;
+    } catch (err) {
+        console.error('Failed to load image:', err);
+        // Skip this cycle — don't update visibleIdx, try again next interval
     }
-    else 
-    {
-        bottom_image_element.src = `${document.URL}image?${timestamp}`;
-        bottom_image_element.onload = async () => {
-            await new Promise(r => setTimeout(r, 500))
-            top_image_element.classList.remove("fade-in");
-            top_image_element.classList.add("fade-out");
-        };
-    }
+}
 
-    // var new_image_res = await fetch(`${document.URL}image`).catch((error) => {
-    //     console.error(error);
-    //     console.error("Failed to retieve image!");
-    // });
-    // var new_image = await new_image_res.blob();
-
-    // if (next_img === 0) { // Top image is invisible
-    //     console.log("updating top");
-    //     top_image_element.src = URL.createObjectURL(new_image);
-    //     await new Promise(r => setTimeout(r, 1000));
-    //     top_image_element.classList.remove("fade-out");
-    //     top_image_element.classList.add("fade-in");
-    // } else { // Top image is visible
-    //     console.log("updating bottom");
-    //     bottom_image_element.src = URL.createObjectURL(new_image);
-    //     await new Promise(r => setTimeout(r, 1000));
-    //     top_image_element.classList.remove("fade-in");
-    //     top_image_element.classList.add("fade-out");
-    // }
-    // URL.revokeObjectURL(new_image);
-};
+fetch(`${document.URL}config`).then(async (res) => {
+    const config = await res.json();
+    set_image(); // first image immediately
+    setInterval(set_image, config.slideshow_duration);
+}).catch((err) => {
+    console.error('Failed to fetch config for slideshow!', err);
+});

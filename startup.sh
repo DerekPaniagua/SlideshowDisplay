@@ -23,7 +23,7 @@ git pull
 npm install
 echo "Running Server and Opening Browser..."
 npm run start:prod &
-sleep 10
+until curl -s http://localhost:3000 > /dev/null; do sleep 1; done
 chromium http://localhost:3000 --kiosk &
-sleep 3
-wlrctl pointer move 1 1
+sleep 2
+unclutter-xfixes --timeout 0 &
