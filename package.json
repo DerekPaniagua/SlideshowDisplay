@@ -17,7 +17,8 @@
     "fullcalendar": "^6.1.8",
     "googleapis": "^118.0.0",
     "moment": "^2.29.4",
-    "nocache": "^4.0.0"
+    "nocache": "^4.0.0",
+    "sharp": "^0.34.5"
   },
   "devDependencies": {
     "nodemon": "^2.0.22"

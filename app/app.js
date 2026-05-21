@@ -4,6 +4,7 @@ const calendar = require('./calendar');
 const slideshow = require('./slideshow');
 const path = require('node:path');
 const nocache = require('nocache')
+const sharp = require('sharp');
 
 console.info("Starting up server...");
 
@@ -64,8 +65,17 @@ app.get("/image", async (req, res) => {
         }
         console.info(`Returning ${image_list[last_index]}`);
         let full_path = path.join(__dirname, '/images', image_list[last_index]);
-        res.sendFile(full_path);
         last_index = (last_index + 1) % image_list.length;
+
+        res.setHeader('Content-Type', 'image/webp');
+        sharp(full_path)
+            .resize(2160, 1920, {
+                fit: 'cover',
+                withoutEnlargement: true
+            })
+            .webp({ quality: 85, effort: 0 })
+            .pipe(res);
+
     } catch (err) {
         console.error(err);
         res.status(500).send({
