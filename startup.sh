@@ -24,4 +24,4 @@ npm install
 echo "Running Servier and Opening Browser..."
 npm run start:prod &
 sleep 10
-chromium http://localhost:3000 --kiosk --no-cache --cursor-visible=false
+chromium http://localhost:3000 --kiosk --no-cache --cursor-visible=false --password-store=basic
