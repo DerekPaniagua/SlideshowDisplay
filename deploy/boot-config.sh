@@ -5,7 +5,7 @@
 load_display_env
 mkdir -p "$STATE_DIR"
 
-# A golden image ships without SSH host keys; every flashed card makes its own
+# Safety net in case a card is ever missing its SSH host keys
 ensure_ssh_host_keys() {
     if ! ls /etc/ssh/ssh_host_*_key >/dev/null 2>&1; then
         log "Generating SSH host keys"

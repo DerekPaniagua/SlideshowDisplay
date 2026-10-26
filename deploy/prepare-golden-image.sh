@@ -1,13 +1,14 @@
 #!/bin/bash
 # Run right before shutting down to capture the golden image. Removes this Pi's identity
-# (Tailscale node, SSH host keys, machine id) so every card flashed from
-# the image sets itself up fresh on first boot. See docs/SETUP.md.
+# (Tailscale node, machine id) so every card flashed from the image sets itself up fresh on
+# first boot. SSH host keys are kept: without them SSH doesn't start on the first boot.
+# See docs/SETUP.md.
 set -uo pipefail
 . /opt/slideshow/deploy/lib.sh
 [ "$(id -u)" -eq 0 ] || die "Run with sudo"
 
 cat <<EOF
-This removes this card's Tailscale login, SSH host keys and machine id,
+This removes this card's Tailscale login and machine id,
 then shuts down. Afterwards, capture the card as the golden image.
 Cards rejoin Tailscale on their own if tailscale-authkey.txt holds an OAuth client secret
 (see docs/SETUP.md); with a regular auth key, add a new key before booting.
@@ -19,7 +20,6 @@ log "Signing out of Tailscale..."
 tailscale logout 2>/dev/null
 
 log "Removing machine identity..."
-rm -f /etc/ssh/ssh_host_*
 truncate -s 0 /etc/machine-id
 [ -L /var/lib/dbus/machine-id ] || rm -f /var/lib/dbus/machine-id
 rm -f "$STATE_DIR/wifi.sha256"    # re-apply wifi.txt on first boot

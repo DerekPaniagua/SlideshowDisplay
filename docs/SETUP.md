@@ -130,7 +130,7 @@ On the finished, tested display:
    ```bash
    sudo bash /opt/slideshow/deploy/prepare-golden-image.sh
    ```
-   This signs the card out of Tailscale, removes its SSH keys and machine ID (each
+   This signs the card out of Tailscale and resets its machine ID (each
    flashed card makes its own), then shuts down. Cached photos are kept, so a new card shows photos
    right away, even offline. Wait for the green light to stop blinking before removing the card.
 
