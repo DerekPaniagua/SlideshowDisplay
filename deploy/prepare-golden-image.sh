@@ -9,7 +9,8 @@ set -uo pipefail
 cat <<EOF
 This removes this card's Tailscale login, SSH host keys and machine id,
 then shuts down. Afterwards, capture the card as the golden image.
-If you boot this card again, it will need a new tailscale-authkey.txt to rejoin Tailscale.
+Cards rejoin Tailscale on their own if tailscale-authkey.txt holds an OAuth client secret
+(see docs/SETUP.md); with a regular auth key, add a new key before booting.
 EOF
 read -r -p "Continue? [y/N] " answer
 [ "$answer" = y ] || [ "$answer" = Y ] || exit 1

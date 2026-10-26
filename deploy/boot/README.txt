@@ -23,5 +23,8 @@ display.env             Screen rotation/resolution, uptime alert URL, nightly re
 
 wifi.txt                Wi-Fi networks, one "name = password" per line. Applied on reboot.
 
-tailscale-authkey.txt   (Optional) Create this with a Tailscale auth key in it to join the
-                        Pi to your Tailscale network on next boot. Deleted once used.
+tailscale-authkey.txt   Joins the Pi to your Tailscale network at boot, if it isn't already.
+                        Best: a Tailscale OAuth client secret (tskey-client-...). It never
+                        expires and stays here, so every card flashed from the golden image
+                        joins by itself. A regular auth key (tskey-auth-...) also works, but
+                        expires and is deleted once used.

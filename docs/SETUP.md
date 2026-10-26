@@ -97,43 +97,84 @@ Watch a few photo fades. If they stutter, step down in `display.env`, running
 
 ## Part 2: Capture the golden image
 
-1. On the finished, tested display:
+The goal is a file you can flash, pop into a Pi and forget about. The only thing that would stop
+that is Tailscale: normal auth keys expire within 90 days. So first give the card a credential
+that never expires.
+
+### 1. A permanent Tailscale credential (one time)
+
+In the [Tailscale admin console](https://login.tailscale.com/admin) (menu names may differ slightly):
+
+1. **Access controls**: add a tag owner to the policy file, inside the top-level `{ }`, and save:
+   ```json
+   "tagOwners": {
+       "tag:display": ["autogroup:admin"]
+   },
+   ```
+   (If `tagOwners` already exists, just add the `"tag:display"` line to it.)
+2. **Settings → OAuth clients → Generate OAuth client**. Give it write access to **Auth Keys**
+   with the tag `tag:display`, generate it, and copy the **client secret** (`tskey-client-...`).
+   It's shown once, so save it in your password manager.
+3. On the Pi, put it on the card:
+   ```bash
+   echo 'tskey-client-...' | sudo tee /boot/firmware/slideshow/tailscale-authkey.txt
+   ```
+
+Machines that join with it are tagged `tag:display` and never hit key expiry. The secret stays on
+the card (and in the image), so keep the image private. If it ever leaks, delete the OAuth client
+in the admin console and make a new one.
+
+### 2. Prepare the card
+
+On the finished, tested display:
    ```bash
    sudo bash /opt/slideshow/deploy/prepare-golden-image.sh
    ```
    This signs the card out of Tailscale, removes its SSH keys and machine ID (each
    flashed card makes its own), then shuts down. Cached photos are kept, so a new card shows photos
-   right away, even offline.
+   right away, even offline. Wait for the green light to stop blinking before removing the card.
 
-2. **Copy the card to a file.** Use either of these:
+### 3. Copy the card to a file
+
+Use either of these:
    - **Windows:** put the card in a reader, open [Win32 Disk Imager](https://sourceforge.net/projects/win32diskimager/),
      choose a file name like `office-display-2026-10-26.img`, and click **Read**.
    - **Other Pi:** put the card in a USB reader on the other Pi and run
      `sudo dd if=/dev/sda of=office-display.img bs=4M status=progress` (check the device with `lsblk` first).
 
-3. **Shrink it** (optional, but it turns a 32 GB file into a few GB). In WSL or on the Pi:
-   ```bash
-   wget https://raw.githubusercontent.com/Drewsif/PiShrink/master/pishrink.sh
-   sudo bash pishrink.sh -z office-display-2026-10-26.img
-   ```
-   The shrunk image grows back to fill the card on first boot.
+### 4. Shrink it
 
-4. **Keep two copies**: one on your PC and one in cloud storage (Google Drive, OneDrive, ...).
+Optional, but it turns a 32 GB file into a few GB. In WSL (copying into WSL first is much faster):
+```bash
+sudo apt install -y parted
+cp /mnt/c/path/to/office-display-2026-10-26.img ~/
+cd ~
+wget https://raw.githubusercontent.com/Drewsif/PiShrink/master/pishrink.sh
+sudo bash pishrink.sh -z office-display-2026-10-26.img
+cp office-display-2026-10-26.img.gz /mnt/c/path/to/
+```
+The shrunk image grows back to fill the card on first boot.
+
+### 5. Keep two copies
+
+One on your PC and one in cloud storage (Google Drive, OneDrive, ...).
 
 ## Part 3: Flash a card from the golden image
 
 1. Raspberry Pi Imager → **Choose OS** → **Use Custom** → pick the `.img` / `.img.gz`.
    When asked about OS customisation, choose **No** (the image is already configured).
-2. Before ejecting, open the card's **bootfs** drive in Explorer → `slideshow` folder:
-   - Add `tailscale-authkey.txt` containing a fresh auth key. Old keys expire, so generate a new one.
-   - Check `wifi.txt` has the right networks.
-3. Boot it. Within a few minutes it shows up in Tailscale (as `office-display`, or `office-display-1`
-   if the old one is still listed; delete the old entry in the admin console).
-4. SSH in, then:
+2. Put it in the Pi and power on. That's it: the display comes up with the cached photos, then
+   joins Wi-Fi and Tailscale by itself.
+3. When convenient, bring the code up to date (the image may be months old):
    ```bash
-   sudo slideshow update     # bring the code up to date; the image may be old
+   ssh <user>@office-display
+   sudo slideshow update
    ```
-   In Tailscale, disable key expiry for the new machine.
+   In Tailscale it may appear as `office-display-1` if the old machine is still listed; delete the
+   old entry in the admin console.
+
+Only if the office Wi-Fi password has changed since the image was made: before ejecting the card,
+open its **bootfs** drive in Explorer → `slideshow` → `wifi.txt` and update it.
 
 ### The spare card
 

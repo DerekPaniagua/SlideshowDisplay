@@ -55,18 +55,33 @@ apply_reboot_time() {
     systemctl restart slideshow-reboot.timer
 }
 
-# tailscale-authkey.txt: joins this Pi to your tailnet, then the key file is deleted
+# tailscale-authkey.txt: joins this Pi to your tailnet when it isn't already joined.
+#  - OAuth client secret (tskey-client-...): never expires, so it stays on the card and any card
+#    flashed from the golden image joins by itself. Joins as tag:display (no key expiry).
+#  - Regular auth key (tskey-auth-...): expires within 90 days, so it's deleted once used.
 join_tailscale() {
-    local file="$CONFIG_DIR/tailscale-authkey.txt" key attempt
+    local file="$CONFIG_DIR/tailscale-authkey.txt" key state attempt
+    local args=(--hostname="$(hostname)" --timeout=60s)
     command -v tailscale >/dev/null || return 0
     [ -f "$file" ] || return 0
     key=$(tr -d '\r\n[:space:]' < "$file")
     [ -n "$key" ] || return 0
 
+    state=$(tailscale status --json 2>/dev/null | jq -r '.BackendState // empty')
+    if [ "$state" = Running ] || [ "$state" = Stopped ]; then
+        return 0
+    fi
+
+    if [[ $key == tskey-client-* ]]; then
+        args+=(--auth-key="$key?ephemeral=false&preauthorized=true" --advertise-tags=tag:display)
+    else
+        args+=(--auth-key="$key" --ssh)
+    fi
+
     for attempt in $(seq 1 30); do
-        if tailscale up --auth-key="$key" --ssh --hostname="$(hostname)" --timeout=60s; then
+        if tailscale up "${args[@]}"; then
             log "Joined Tailscale as $(hostname)"
-            rm -f "$file"
+            [[ $key == tskey-client-* ]] || rm -f "$file"
             return 0
         fi
         log "Tailscale join failed (attempt $attempt), retrying in 30 seconds"
