@@ -16,9 +16,7 @@
     --fc-neutral-bg-color: transparent;
     --fc-today-bg-color: rgba(191, 162, 106, 0.08);
     --fc-now-indicator-color: var(--gold-deep);
-    --fc-event-bg-color: var(--gold-deep);
-    --fc-event-border-color: var(--gold-deep);
-    --fc-event-text-color: #ffffff;
+    --fc-event-text-color: var(--ink);
 }
 
 * {
@@ -142,25 +140,44 @@ body {
     border-top-style: none;
 }
 
-/* Events */
+/*
+ * Events: a light tint of the event's color with a solid stripe on the left, and dark text,
+ * so every color stays readable. Colors follow Google Calendar's event colors (calendar.js
+ * adds event-color-<id>), toned to sit with the gold theme. No color = gold.
+ */
 .fc .fc-event {
+    --event-color: var(--gold-deep);
     border: none;
+    border-left: 0.35vh solid var(--event-color);
     border-radius: 0.6vh;
-    box-shadow: 0 0.1vh 0.3vh rgba(42, 38, 34, 0.15);
+    background: color-mix(in srgb, var(--event-color) 20%, var(--bg));
+    box-shadow: 0 0.1vh 0.3vh rgba(42, 38, 34, 0.12);
 }
+
+.fc .event-color-1  { --event-color: #7986cb; }  /* Lavender */
+.fc .event-color-2  { --event-color: #3f9a72; }  /* Sage */
+.fc .event-color-3  { --event-color: #8e4fb0; }  /* Grape */
+.fc .event-color-4  { --event-color: #d0675e; }  /* Flamingo */
+.fc .event-color-5  { --event-color: #d9a514; }  /* Banana */
+.fc .event-color-6  { --event-color: #e0662f; }  /* Tangerine */
+.fc .event-color-7  { --event-color: #1c8fc7; }  /* Peacock */
+.fc .event-color-8  { --event-color: #6f6f6f; }  /* Graphite */
+.fc .event-color-9  { --event-color: #4a5bb8; }  /* Blueberry */
+.fc .event-color-10 { --event-color: #2e8b57; }  /* Basil */
+.fc .event-color-11 { --event-color: #c62828; }  /* Tomato */
 
 .fc .fc-timegrid-event-harness-inset .fc-timegrid-event {
     box-shadow: 0 0 0 0.15vh var(--bg);
 }
 
 .fc .fc-event-main {
-    padding: 0.3vh 0.6vh;
+    padding: 0.3vh 0.45vh;
 }
 
 /* Event titles stay bold so they're readable from across the room */
 .fc .fc-event-title {
     font-weight: 700;
-    font-size: 1.15vh;
+    font-size: 1vh;
     line-height: 1.25;
     white-space: normal;
     overflow-wrap: break-word;

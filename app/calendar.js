@@ -3,7 +3,6 @@ const google_calendar = require('@googleapis/calendar');
 let config = null;
 let calendar = null;
 let calendar_id = null;
-let colors = null;
 let cache = { key: null, events: [] };  // last good response, served if Google is unreachable
 let last_sync = null;
 
@@ -40,7 +39,6 @@ async function get_events(start, end) {
     const key = `${start.toISOString()}|${end.toISOString()}`;
     try {
         const id = await get_calendar_id();
-        colors ??= (await get_calendar().colors.get()).data.event ?? {};
 
         const response = await get_calendar().events.list({
             calendarId: id,
@@ -72,13 +70,8 @@ function convert_google_event_to_full_calendar_event(event) {
         title: event.summary ?? '',
     };
 
-    // Events without a color use the theme's default event color
-    const color = event.colorId && colors[event.colorId];
-    if (color) {
-        full_calendar_event.backgroundColor = color.background;
-        full_calendar_event.borderColor = color.background;
-        full_calendar_event.textColor = color.foreground;
-    }
+    // The page styles each Google event color (app.css); no color uses the theme's gold
+    if (event.colorId) full_calendar_event.classNames = [`event-color-${event.colorId}`];
 
     if (event.start.dateTime) {
         full_calendar_event.start = event.start.dateTime;
