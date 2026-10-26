@@ -18,6 +18,9 @@ read -r -p "Continue? [y/N] " answer
 
 log "Signing out of Tailscale..."
 tailscale logout 2>/dev/null
+# Logging out keeps the machine key, which every flashed card would then share
+systemctl stop tailscaled 2>/dev/null
+rm -f /var/lib/tailscale/tailscaled.state
 
 log "Removing machine identity..."
 truncate -s 0 /etc/machine-id
