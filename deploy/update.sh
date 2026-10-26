@@ -45,8 +45,9 @@ deploy() {
     fi
 }
 
-ref=${1:-origin/master}
 g fetch --quiet origin || die "git fetch failed (no internet?)"
+# Default: the branch this checkout tracks (e.g. origin/master)
+ref=${1:-$(g rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>/dev/null || echo origin/master)}
 previous=$(g rev-parse HEAD)
 target=$(g rev-parse --verify --quiet "$ref^{commit}") || die "Unknown git ref '$ref'"
 
