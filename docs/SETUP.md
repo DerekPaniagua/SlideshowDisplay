@@ -124,45 +124,73 @@ Machines that join with it are tagged `tag:display` and never hit key expiry. Th
 the card (and in the image), so keep the image private. If it ever leaks, delete the OAuth client
 in the admin console and make a new one.
 
-### 2. Prepare the card
+### 2. Copy the display onto a small card
 
-On the finished, tested display:
-   ```bash
-   sudo bash /opt/slideshow/deploy/prepare-golden-image.sh
-   ```
-   This signs the card out of Tailscale and resets its machine ID (each
-   flashed card makes its own), then shuts down. Cached photos are kept, so a new card shows photos
-   right away, even offline. Wait for the green light to stop blinking before removing the card.
+Imaging a big card makes a file as big as the card, so copy the system onto a small spare card
+first (8–16 GB is plenty; it only needs to hold about 6 GB). This also leaves the working display
+card untouched. With the spare card in a USB reader on the Pi:
 
-### 3. Copy the card to a file
-
-Use either of these:
-   - **Windows:** put the card in a reader, open [Win32 Disk Imager](https://sourceforge.net/projects/win32diskimager/),
-     choose a file name like `office-display-2026-10-26.img`, and click **Read**.
-   - **Other Pi:** put the card in a USB reader on the other Pi and run
-     `sudo dd if=/dev/sda of=office-display.img bs=4M status=progress` (check the device with `lsblk` first).
-
-### 4. Shrink it
-
-Optional, but it turns a 32 GB file into a few GB. In WSL (copying into WSL first is much faster):
 ```bash
-sudo apt install -y parted
-cp /mnt/c/path/to/office-display-2026-10-26.img ~/
-cd ~
-wget https://raw.githubusercontent.com/Drewsif/PiShrink/master/pishrink.sh
-sudo bash pishrink.sh -z office-display-2026-10-26.img
-cp office-display-2026-10-26.img.gz /mnt/c/path/to/
+lsblk                                  # the reader is usually sda; check its size
+sudo apt install -y tmux
+curl -fsSL https://raw.githubusercontent.com/geerlingguy/rpi-clone/master/install | sudo bash
+tmux new -s clone
+sudo rpi-clone sda
 ```
-The shrunk image grows back to fill the card on first boot.
+
+Answer yes to its prompts. It takes a while; tmux keeps it running if your SSH session drops
+(reconnect, then `tmux attach -t clone`). If it gets cut off anyway, run it again: it only copies
+what's missing. To check the copy is complete:
+
+```bash
+sudo mkdir -p /mnt/clone
+mountpoint -q /mnt/clone || sudo mount /dev/sda2 /mnt/clone
+df -h / /mnt/clone                     # "Used" should be about the same on both
+sudo rsync -aHAXxn --delete --itemize-changes / /mnt/clone/ | wc -l    # a few dozen at most
+sudo umount /mnt/clone
+```
+
+### 3. Prepare the small card
+
+Power off, put the small card in the Pi's own slot, and boot from it. This also proves the copy
+works. Then:
+
+```bash
+sudo slideshow update
+sudo bash /opt/slideshow/deploy/prepare-golden-image.sh
+```
+
+The script signs the card out of Tailscale, deletes its Tailscale key and resets its machine ID
+(each flashed card makes its own), then shuts down. Cached photos are kept, so a new card shows
+photos right away, even offline. Wait for the green light to stop blinking before removing the
+card, and **don't boot it again** before imaging it: booting gives it an identity again.
+
+### 4. Copy the card to a file
+
+- **Windows:** put the card in a reader (click **Cancel** if Windows offers to format it), open
+  [Win32 Disk Imager](https://sourceforge.net/projects/win32diskimager/) (right-click → **Run as
+  administrator** if it won't open), choose a file name like `office-display-2026-10-26.img`, and
+  click **Read**.
+- **On a Pi:** put the card in a USB reader on a Pi booted from another card, check it's `sda` with
+  `lsblk`, then in tmux:
+  `sudo dd if=/dev/sda bs=4M status=progress | gzip -1 > ~/office-display.img.gz`.
+  Copy it to your PC with `scp <user>@office-display.local:office-display.img.gz .` and delete it
+  from the Pi.
+
+If you had to image a big card instead, [PiShrink](https://github.com/Drewsif/PiShrink) can shrink
+the file afterwards (in WSL, with the image copied into the WSL home folder first).
 
 ### 5. Keep two copies
 
-One on your PC and one in cloud storage (Google Drive, OneDrive, ...).
+One on your PC and one in cloud storage (Google Drive, OneDrive, ...). Keep both private: the image
+contains the Tailscale secret and the Google credentials. Label the small card as the spare (see
+below).
 
 ## Part 3: Flash a card from the golden image
 
-1. Raspberry Pi Imager → **Choose OS** → **Use Custom** → pick the `.img` / `.img.gz`.
-   When asked about OS customisation, choose **No** (the image is already configured).
+1. Raspberry Pi Imager (Windows or Mac) → **Choose OS** → **Use Custom** → pick the `.img` /
+   `.img.gz`. When asked about OS customisation, choose **No** (the image is already configured).
+   Afterwards a Mac may say the disk "is not readable": click **Eject**, never **Initialize**.
 2. Put it in the Pi and power on. That's it: the display comes up with the cached photos, then
    joins Wi-Fi and Tailscale by itself.
 3. When convenient, bring the code up to date (the image may be months old):
@@ -178,11 +206,13 @@ open its **bootfs** drive in Explorer → `slideshow` → `wifi.txt` and update 
 
 ### The spare card
 
-Flash a second card (Part 3), boot it once at home to check it works, then leave it in a labelled
-envelope at the office. If the display ever won't come back, your brother can swap cards and you
+The small card from Part 2 is a ready spare; or flash one (Part 3) and boot it once at home to
+check it works. Leave it in a labelled envelope at the office. If the display ever won't come back, your brother can swap cards and you
 can fix the broken one at home. It may be out of date when used; run `sudo slideshow update`.
 
 ## Refreshing the golden image
 
 You don't need to recapture the image for code changes, since `slideshow update` handles those.
 Recapture it only after big system changes (OS upgrade, new packages), or about once a year.
+Image a card that's been through `prepare-golden-image.sh` and not booted since, or every card
+flashed from it shares one Tailscale identity.
