@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<!-- Minimal labwc config for a single full-screen kiosk window -->
+<labwc_config>
+  <core>
+    <gap>0</gap>
+  </core>
+  <desktops number="1" />
+  <windowRules>
+    <windowRule identifier="*" serverDecoration="no" />
+  </windowRules>
+</labwc_config>

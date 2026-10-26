@@ -1,67 +1,62 @@
-// Reload every hour to stay fresh
-setInterval(() => { location.reload(); }, 1 * 60 * 60 * 1000);
+function startSlideshow(config) {
+    const slides = [document.getElementById('slide-0'), document.getElementById('slide-1')];
+    let front = 0;      // index of the slide element currently showing
+    let images = [];    // image urls from the server
+    let next = 0;       // index into images of the next image to show
+    let loading = false;
 
-const img0 = document.getElementById('slideshow-image-0');
-const img1 = document.getElementById('slideshow-image-1');
-const images = [img0, img1];
+    document.documentElement.style.setProperty('--fade', `${config.transition_duration}ms`);
 
-let visibleIdx = 0; // which image element is currently on top/visible
+    async function refreshImageList() {
+        try {
+            const response = await fetch('/api/images');
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const data = await response.json();
+            if (data.images.join() !== images.join()) {
+                images = data.images;
+                if (next >= images.length) next = 0;
+            }
+        } catch (err) {
+            console.warn('Failed to refresh image list:', err);
+        }
+    }
 
-async function preloadImage(url) {
-    return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => {
-            // decode() ensures the browser has rasterized it before we swap
-            img.decode ? img.decode().then(resolve).catch(resolve) : resolve();
-        };
-        img.onerror = reject;
-        img.src = url;
-    });
-}
+    async function showNext() {
+        // Skip this tick if the previous image is still loading (slow decode, busy Pi)
+        if (images.length === 0 || loading) return;
+        const url = images[next];
+        next = (next + 1) % images.length;
 
-async function set_image() {
-    const timestamp = Date.now();
-    const url = `${document.URL}image?${timestamp}`;
+        const current = slides[front];
+        const incoming = slides[1 - front];
+        if (current.getAttribute('src') === url) return; // only one image
 
-    // Index of the hidden (background) element
-    const hiddenIdx = (visibleIdx + 1) % 2;
-    const hiddenEl = images[hiddenIdx];
-    const visibleEl = images[visibleIdx];
-
-    try {
-        // Pre-load and decode the image fully before touching the DOM
-        await preloadImage(url);
-
-        // Set src on the hidden element (already decoded, paints instantly)
-        hiddenEl.src = url;
-
-        // Wait one frame so the browser has committed the src
-        await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-
-        // Brief pause before starting transition
-        await new Promise(r => setTimeout(r, 50));
-
-        if (hiddenIdx === 0) {
-            // Bringing img0 to front
-            hiddenEl.classList.remove('fade-out');
-            hiddenEl.classList.add('fade-in');
-        } else {
-            // Sending img0 to back (img1 is underneath)
-            visibleEl.classList.remove('fade-in');
-            visibleEl.classList.add('fade-out');
+        loading = true;
+        try {
+            // Load and decode off-screen so the fade never stutters. Image urls are cached
+            // forever, so setting the same url on the slide doesn't download it again.
+            const loader = new Image();
+            loader.src = url;
+            await loader.decode();
+            incoming.src = url;
+            await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        } catch (err) {
+            console.warn('Failed to load image:', url, err);
+            return;
+        } finally {
+            loading = false;
         }
 
-        visibleIdx = hiddenIdx;
-    } catch (err) {
-        console.error('Failed to load image:', err);
-        // Skip this cycle — don't update visibleIdx, try again next interval
-    }
-}
+        incoming.classList.remove('placeholder');
+        incoming.classList.add('is-front', 'is-visible');
+        current.classList.remove('is-front');
+        front = 1 - front;
 
-fetch(`${document.URL}config`).then(async (res) => {
-    const config = await res.json();
-    set_image(); // first image immediately
-    setInterval(set_image, config.slideshow_duration);
-}).catch((err) => {
-    console.error('Failed to fetch config for slideshow!', err);
-});
+        // Hide the old slide once it's fully covered
+        setTimeout(() => current.classList.remove('is-visible'), config.transition_duration + 100);
+    }
+
+    refreshImageList().then(showNext);
+    setInterval(refreshImageList, config.image_list_refresh);
+    setInterval(showNext, config.slideshow_duration);
+}

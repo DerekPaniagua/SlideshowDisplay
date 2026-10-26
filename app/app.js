@@ -1,136 +1,116 @@
 const express = require('express');
-const fs = require('fs');
+const path = require('node:path');
+const { execSync } = require('node:child_process');
+const config = require('./config');
 const calendar = require('./calendar');
 const slideshow = require('./slideshow');
-const path = require('node:path');
-const nocache = require('nocache')
-const sharp = require('sharp');
 
 console.info("Starting up server...");
 
-// Setup
-let image_list = [];
-let last_index = 0;
+// Crash loudly so systemd restarts us, instead of limping along in a bad state
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught exception, exiting:', err);
+    process.exit(1);
+});
+process.on('unhandledRejection', (err) => {
+    console.error('Unhandled promise rejection:', err);
+});
 
-var config_data = fs.readFileSync('./app/data/config.json', 'utf8');
-const config = JSON.parse(config_data);
-check_and_update_images().then(() => { setInterval(check_and_update_images, config.google_drive_refresh_duration); });
+// Changes on every deploy/restart; the page reloads itself when it sees a new version
+const VERSION = `${get_commit()}-${Date.now().toString(36)}`;
+
+calendar.init(config);
+slideshow.init(config);
+slideshow.start();
 
 
 // Web Server
 const app = express();
-app.use(nocache());
-app.use(express.static(`${__dirname}/public`));
-app.listen(3000, () => {
-    console.info("Application Listening on port 3000");
+
+// Pages and scripts revalidate on every load so updates show up right away
+app.use(express.static(`${__dirname}/public`, {
+    setHeaders: (res) => res.setHeader('Cache-Control', 'no-cache'),
+}));
+// Cached image names change when their content does, so they can be cached forever
+app.use('/images', express.static(config.cache_dir, { immutable: true, maxAge: '365d' }));
+// Served locally so the page works even if the internet is down
+app.use('/vendor/fullcalendar', express.static(path.join(__dirname, '..', 'node_modules', 'fullcalendar'), { maxAge: '1d' }));
+
+app.listen(config.port, (err) => {
+    if (err) throw err;
+    console.info(`Application Listening on port ${config.port}`);
 });
 
 // Endpoints
 app.get("/", (req, res) => {
-    res.sendFile(`${__dirname}/html/index.html`);
+    res.sendFile(`${__dirname}/html/index.html`, { headers: { 'Cache-Control': 'no-cache' } });
 });
-
 
 app.get("/graphs", (req, res) => {
     res.sendFile(`${__dirname}/html/graphs.html`);
 });
 
-app.get("/insert", (req, res) => {
-    return;
-    var g_calendar = calendar.get_google_calendar(config.google_credentials_path);
-    g_calendar.calendarList.delete({calendarId:"calendarIDHere"});
-    // g_calendar.delete(calendarId:"");
+app.get("/health", (req, res) => {
+    res.set('Cache-Control', 'no-store').json({
+        ok: true,
+        version: VERSION,
+        uptime_seconds: Math.round(process.uptime()),
+        images: slideshow.get_images().length,
+        last_image_sync: slideshow.get_last_sync(),
+        last_calendar_sync: calendar.get_last_sync(),
+    });
 });
 
-app.get("/config", (req, res) => {
-    try {
-        let html_config = {
-            slideshow_duration: config.slideshow_duration,
-            calendar_update_duration: config.calendar_update_duration,
-        };
-        res.json(html_config);
-    } catch (err) {
-        console.error(err);
-        res.status(500).send({
-            message: `${err}`
-        });
-    }
+app.get("/api/config", (req, res) => {
+    res.set('Cache-Control', 'no-store').json({
+        slideshow_duration: config.slideshow_duration,
+        transition_duration: config.transition_duration,
+        image_list_refresh: config.drive_sync_interval,
+        calendar_update_duration: config.calendar_update_duration,
+        day_start: config.day_start,
+        day_end: config.day_end,
+        hidden_days: config.hidden_days,
+        page_reload_interval: config.page_reload_interval,
+    });
 });
 
-app.get("/image", async (req, res) => {
-    try {
-        if (image_list.length === 0) {
-            res.end();
-            return;
-        }
-        console.info(`Returning ${image_list[last_index]}`);
-        let full_path = path.join(__dirname, '/images', image_list[last_index]);
-        last_index = (last_index + 1) % image_list.length;
-
-        res.setHeader('Content-Type', 'image/webp');
-        sharp(full_path)
-            .resize(2160, 1920, {
-                fit: 'cover',
-                withoutEnlargement: true
-            })
-            .webp({ quality: 85, effort: 0 })
-            .pipe(res);
-
-    } catch (err) {
-        console.error(err);
-        res.status(500).send({
-            message: `${err}`
-        });
-    }
+app.get("/api/images", (req, res) => {
+    res.set('Cache-Control', 'no-store').json({
+        images: slideshow.get_images().map(name => `/images/${name}`),
+    });
 });
 
-app.get("/calendar", async (req, res) => {
+app.get("/api/calendar", async (req, res) => {
+    const start = parse_date(req.query.start) ?? start_of_week();
+    const end = parse_date(req.query.end) ?? new Date(start.getTime() + 7 * 24 * 60 * 60 * 1000);
     try {
-        console.log("Fetching calendar events...");
-        var g_calendar = calendar.get_google_calendar(config.google_credentials_path);
-        var events = await calendar.get_events(g_calendar);
-        if (!events) {
-            res.status(500).send({
-                message: "Failed to retireve calendar events"
-            })
-            return
-        }
-        res.send(events);
-        console.log(`Successfully fetched ${events.length} events!`);
+        const events = await calendar.get_events(start, end);
+        res.set('Cache-Control', 'no-store').json(events);
     } catch (err) {
-        console.error(err);
-        res.status(500).send({
-            message: `${err}`
-        });
+        console.error(`Failed to retrieve calendar events: ${err.message}`);
+        res.status(502).json({ message: err.message });
     }
 });
 
 
-// Helper Fucntions
-async function check_and_update_images() {
+// Helper Functions
+function parse_date(value) {
+    if (typeof value !== 'string') return null;
+    const date = new Date(value);
+    return isNaN(date) ? null : date;
+}
+
+function start_of_week() {
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() - date.getDay());
+    return date;
+}
+
+function get_commit() {
     try {
-        console.info("Checking google drive for image updates...");
-        let drive = slideshow.get_google_drive(config.google_credentials_path);
-        let new_image_list = await slideshow.get_file_names(drive);
-        let hasChanged = false;
-        for (let image_name of new_image_list) {
-            if (!image_list.includes(image_name)) {
-                hasChanged = true;
-                break;
-            }
-        }
-        if (hasChanged || new_image_list.length !== image_list.length) {
-            console.info("Change detected, refreshing images...");
-            await slideshow.refresh_images(config.images_path, drive);
-            image_list = new_image_list;
-            image_list.sort();
-            last_index = 0;
-            console.info(`Successfully fetched ${image_list.length} images!`);
-        } else {
-            console.info("No update required!");
-        }
-    } catch (err) {
-        console.error("Failed to fetch images from google drive!");
-        console.error(err);
+        return execSync('git rev-parse --short HEAD', { cwd: __dirname, stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+    } catch {
+        return 'dev';
     }
-};
+}

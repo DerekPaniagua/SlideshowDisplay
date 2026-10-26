@@ -1,0 +1,7 @@
+# Scripts run on the Pi: always check out with Unix line endings
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+
+# Settings files on the SD card are edited on Windows
+deploy/boot/* text eol=crlf

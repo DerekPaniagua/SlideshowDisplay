@@ -1,0 +1,7 @@
+# Wi-Fi networks the display can join, one per line:
+#     network name = password
+# Lines starting with # are ignored. Applied at the next reboot.
+#
+# Example:
+# Office WiFi = office-password
+# Home WiFi = home-password

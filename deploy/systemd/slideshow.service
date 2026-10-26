@@ -1,0 +1,18 @@
+[Unit]
+Description=Office display web server
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+User=@USER@
+WorkingDirectory=/opt/slideshow
+Environment=NODE_ENV=production
+Environment=SLIDESHOW_CONFIG_DIR=/boot/firmware/slideshow
+Environment=SLIDESHOW_CACHE_DIR=/var/lib/slideshow
+ExecStart=/usr/bin/node app/app.js
+Restart=always
+SyslogIdentifier=slideshow
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

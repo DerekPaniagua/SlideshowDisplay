@@ -1,0 +1,7 @@
+[Unit]
+Description=Report office display health to the uptime monitor
+
+[Service]
+Type=oneshot
+User=@USER@
+ExecStart=/bin/bash /opt/slideshow/deploy/heartbeat.sh

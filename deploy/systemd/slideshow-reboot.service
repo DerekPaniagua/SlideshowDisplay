@@ -1,0 +1,6 @@
+[Unit]
+Description=Nightly reboot of the office display
+
+[Service]
+Type=oneshot
+ExecStart=/bin/systemctl reboot

@@ -1,0 +1,14 @@
+[Unit]
+Description=Apply office display settings from the boot partition (Wi-Fi, Tailscale, reboot time)
+After=NetworkManager.service tailscaled.service
+Wants=tailscaled.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /opt/slideshow/deploy/boot-config.sh
+RemainAfterExit=yes
+SyslogIdentifier=slideshow-boot
+TimeoutStartSec=15min
+
+[Install]
+WantedBy=multi-user.target

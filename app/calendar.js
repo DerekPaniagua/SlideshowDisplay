@@ -1,90 +1,98 @@
-const { google } = require('googleapis');
-const moment = require('moment');
-const fs = require('fs');
+const google_calendar = require('@googleapis/calendar');
 
-function get_google_calendar(credentials_file_path) {
-    var credentials = JSON.parse(fs.readFileSync(credentials_file_path, 'utf8'));
-    // Create a new JWT client using the service account credentials
-    const jwtClient = new google.auth.JWT(
-        credentials.client_email,
-        null,
-        credentials.private_key,
-        ['https://www.googleapis.com/auth/calendar'],
-        null
-    );
+let config = null;
+let calendar = null;
+let calendar_id = null;
+let colors = null;
+let cache = { key: null, events: [] };  // last good response, served if Google is unreachable
+let last_sync = null;
 
-    // Create a new calendar API instance
-    return google.calendar({ version: 'v3', auth: jwtClient });
+function init(app_config) {
+    config = app_config;
 }
 
-async function insert_calendar(google_calendar, calendar_id) {
-    await google_calendar.calendarList.insert({
-        resource: {
-            id: calendar_id
+function get_calendar() {
+    if (!calendar) {
+        const auth = new google_calendar.auth.GoogleAuth({
+            keyFile: config.credentials_path,
+            scopes: ['https://www.googleapis.com/auth/calendar.readonly'],
+        });
+        calendar = google_calendar.calendar({ version: 'v3', auth });
+    }
+    return calendar;
+}
+
+async function get_calendar_id() {
+    if (config.calendar_id) return config.calendar_id;
+    if (!calendar_id) {
+        const response = await get_calendar().calendarList.list();
+        const items = response.data.items ?? [];
+        if (items.length === 0) {
+            throw new Error('Service account has no calendars. Share a calendar with it and set "calendar_id" in config.json.');
         }
-    });
+        calendar_id = items[0].id;
+    }
+    return calendar_id;
 }
 
-// Retrieve calendar events from the current week
-async function get_events(google_calendar) {
-    // Get the current week's start and end dates
-    const startDate = moment().startOf('week').toISOString();
-    const endDate = moment().endOf('week').toISOString();
-
+// Retrieve events between two dates, falling back to the last good response
+async function get_events(start, end) {
+    const key = `${start.toISOString()}|${end.toISOString()}`;
     try {
-        const calendars = await google_calendar.calendarList.list();
-        if (calendars.data.items < 1) {
-            throw new Error("Service Account has no calendars! Must insert calendar...");
-        }
+        const id = await get_calendar_id();
+        colors ??= (await get_calendar().colors.get()).data.event ?? {};
 
-        const response = await google_calendar.events.list({
-            calendarId: calendars.data.items[0].id, // Use 'primary' for the primary calendar
-            timeMin: startDate,
-            timeMax: endDate,
+        const response = await get_calendar().events.list({
+            calendarId: id,
+            timeMin: start.toISOString(),
+            timeMax: end.toISOString(),
             singleEvents: true,
+            orderBy: 'startTime',
+            maxResults: 2500,
         });
 
-        const events = response.data.items;
-        const colors_response = await google_calendar.colors.get();
-        const colors = colors_response.data.event;
-        return convert_google_event_to_full_calendar_event(events, colors);
-    } catch (error) {
-        console.error('Error retrieving calendar events:', error.message);
+        const events = (response.data.items ?? [])
+            .filter(event => event.status !== 'cancelled')
+            .map(convert_google_event_to_full_calendar_event);
+        cache = { key, events };
+        last_sync = new Date();
+        return events;
+    } catch (err) {
+        if (cache.key === key) {
+            console.error(`Calendar fetch failed, serving cached events: ${err.message}`);
+            return cache.events;
+        }
+        throw err;
     }
 }
 
-function convert_google_event_to_full_calendar_event(google_calendar_events, colors) {
-    var fullCalendarEvents = [];
-    for (var event of google_calendar_events) {
-        var color = 'rgba(0, 0, 0, 0.8)'; // Default
-        if (event.colorId) {
-            color = colors[Number(event.colorId)].background + 'cc';
-        }
-        if (event.start.dateTime) {
-            fullCalendarEvents.push({
-                id: event.id,
-                start: event.start.dateTime,
-                end: event.end.dateTime,
-                title: event.summary,
-                color
-            }
-            )
-        } else {
-            fullCalendarEvents.push({
-                id: event.id,
-                start: event.start.date,
-                end: event.end.date,
-                title: event.summary,
-                allDay: true,
-                color
-            });
-        };
+function convert_google_event_to_full_calendar_event(event) {
+    const full_calendar_event = {
+        id: event.id,
+        title: event.summary ?? '',
+    };
+
+    // Events without a color use the theme's default event color
+    const color = event.colorId && colors[event.colorId];
+    if (color) {
+        full_calendar_event.backgroundColor = color.background;
+        full_calendar_event.borderColor = color.background;
+        full_calendar_event.textColor = color.foreground;
     }
-    return fullCalendarEvents;
+
+    if (event.start.dateTime) {
+        full_calendar_event.start = event.start.dateTime;
+        full_calendar_event.end = event.end.dateTime;
+    } else {
+        full_calendar_event.start = event.start.date;
+        full_calendar_event.end = event.end.date;
+        full_calendar_event.allDay = true;
+    }
+    return full_calendar_event;
 }
 
 module.exports = {
-    get_google_calendar,
-    insert_calendar,
+    init,
     get_events,
-}
+    get_last_sync: () => last_sync,
+};

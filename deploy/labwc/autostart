@@ -1,0 +1,2 @@
+# Run by labwc when the display session starts. Output goes to the journal: `slideshow logs kiosk`
+systemd-cat --identifier=kiosk bash /opt/slideshow/deploy/kiosk.sh &

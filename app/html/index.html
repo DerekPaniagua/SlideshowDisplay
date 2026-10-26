@@ -1,23 +1,35 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Google Calendar and Slideshow</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Office Display</title>
     <link rel="stylesheet" href="/css/app.css">
 </head>
 
 <body>
-    <div class="fullscreen">
-        <div class="box calendar-background">
-            <div id="calendar" style="width: 100%"></div>
+    <header class="topbar">
+        <img class="logo" src="/pandenlogo.png" alt="" />
+        <div class="clock">
+            <div id="clock-time" class="clock-time"></div>
+            <div id="clock-date" class="clock-date"></div>
         </div>
-        <div id="slideshow" class="box">
-            <img id="slideshow-image-0" class="slideshow top" src="../pandenlogo.png" />
-            <img id="slideshow-image-1" class="slideshow" src="../pandenlogo.png" />
-        </div>
-    </div>
+    </header>
+
+    <section class="calendar-panel">
+        <div id="calendar"></div>
+    </section>
+
+    <section class="slideshow">
+        <img id="slide-0" class="slide placeholder is-visible is-front" src="/pandenlogo.png" alt="" />
+        <img id="slide-1" class="slide" alt="" />
+    </section>
+
+    <script src="/vendor/fullcalendar/index.global.min.js"></script>
+    <script src="/javascript/calendar.js"></script>
+    <script src="/javascript/slideshow.js"></script>
+    <script src="/javascript/display.js"></script>
 </body>
-<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
-<script src="/javascript/calendar.js"></script>
-<script src="/javascript/slideshow.js"></script>
+
 </html>

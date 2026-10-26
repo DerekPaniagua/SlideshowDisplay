@@ -1,7 +1,19 @@
 {
-    "images_path": "./app/images",
-    "google_credentials_path": "./app/data/credentials.json",
-    "google_drive_refresh_duration": 60000,
+    "port": 3000,
+
+    "drive_sync_interval": 60000,
+    "image_width": 2160,
+    "image_height": 1920,
+    "image_quality": 85,
+
     "slideshow_duration": 10000,
-    "calendar_update_duration": 60000
+    "transition_duration": 2000,
+
+    "calendar_id": "",
+    "calendar_update_duration": 60000,
+    "day_start": "06:00:00",
+    "day_end": "18:00:00",
+    "hidden_days": [0, 6],
+
+    "page_reload_interval": 21600000
 }

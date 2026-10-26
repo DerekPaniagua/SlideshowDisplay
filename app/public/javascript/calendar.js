@@ -1,36 +1,57 @@
-// Setup calendar initally
-var calendar_element = document.getElementById('calendar');
-var calendar = new FullCalendar.Calendar(calendar_element, {
-    initialView: 'timeGridWeek',
-    slotMinTime: '06:00:00',
-    slotMaxTime: '18:00:00',
-    hiddenDays: [0, 6],
-    headerToolbar: false,
-    nowIndicator: true,
-    slotEventOverlap: true,
-    slotDuration: '01:00:00',
-    expandRows: true,
-});
+function startCalendar(config) {
+    let lastGood = { key: null, events: [] };
 
-calendar.render();
+    const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+        initialView: 'timeGridWeek',
+        slotMinTime: config.day_start,
+        slotMaxTime: config.day_end,
+        hiddenDays: config.hidden_days,
+        headerToolbar: false,
+        nowIndicator: true,
+        slotEventOverlap: true,
+        slotDuration: '01:00:00',
+        expandRows: true,
+        height: '100%',
+        dayHeaderFormat: { weekday: 'short', day: 'numeric' },
+        slotLabelFormat: { hour: 'numeric', meridiem: 'short' },
+        eventDidMount: clampEventTitle,
 
-// Set Events to be updated according to config
-fetch(`${document.URL}config`).then(async (res) => {
-    const config = await res.json();
-    setInterval(updateEvents, config.calendar_update_duration);
-    updateEvents();
-}).catch((reason) => {
-    console.error(reason);
-    console.error("Failed to fetch config for calendar!")
-});
+        // FullCalendar asks for the visible range; keep showing the last good events if a fetch fails
+        events: async (info, success) => {
+            const key = `${info.startStr}|${info.endStr}`;
+            try {
+                const params = new URLSearchParams({ start: info.startStr, end: info.endStr });
+                const response = await fetch(`/api/calendar?${params}`);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                lastGood = { key, events: await response.json() };
+            } catch (err) {
+                console.warn('Failed to update calendar events:', err);
+            }
+            success(lastGood.key === key ? lastGood.events : []);
+        },
+    });
 
-async function updateEvents() {
-    console.log("Updating calendar events...");
-    var response = await fetch(`${document.URL}calendar`);
-    var events = await response.json();
-
-    calendar.getEvents().forEach(event => event.remove());
-    events.forEach(event => calendar.addEvent(event));
     calendar.render();
-    console.log("Updated calendar events successfully!")
-};
+    setInterval(() => calendar.refetchEvents(), config.calendar_update_duration);
+
+    // The page can stay open for days: move to the current week/day when the date changes
+    let today = new Date().toDateString();
+    setInterval(() => {
+        const now = new Date().toDateString();
+        if (now !== today) {
+            today = now;
+            calendar.today();
+        }
+    }, 60 * 1000);
+}
+
+// Show as many whole lines of the title as fit in the event box
+function clampEventTitle(info) {
+    const main = info.el.querySelector('.fc-event-main');
+    const title = info.el.querySelector('.fc-event-title');
+    if (!main || !title) return;
+    const mainStyle = getComputedStyle(main);
+    const available = main.clientHeight - parseFloat(mainStyle.paddingTop) - parseFloat(mainStyle.paddingBottom);
+    const lineHeight = parseFloat(getComputedStyle(title).lineHeight);
+    title.style.webkitLineClamp = Math.max(1, Math.floor(available / lineHeight));
+}

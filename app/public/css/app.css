@@ -1,116 +1,206 @@
-/* Custom Full Calendar */
+/*
+ * Sizes use vh so the layout looks the same at 1080p or 4K and at any display scale.
+ * Layout (portrait): header 7vh, calendar 43vh, slideshow 50vh.
+ */
+:root {
+    --bg: #ffffff;
+    --ink: #2a2622;
+    --muted: #8f887d;
+    --line: #ebe5da;
+    --gold: #bfa26a;
+    --gold-deep: #8c6d33;
+    --fade: 2000ms;
 
-html * {
-    font-family: Arial;
+    --fc-border-color: var(--line);
+    --fc-page-bg-color: var(--bg);
+    --fc-neutral-bg-color: transparent;
+    --fc-today-bg-color: rgba(191, 162, 106, 0.08);
+    --fc-now-indicator-color: var(--gold-deep);
+    --fc-event-bg-color: var(--gold-deep);
+    --fc-event-border-color: var(--gold-deep);
+    --fc-event-text-color: #ffffff;
+}
+
+* {
+    box-sizing: border-box;
     cursor: none;
 }
 
-.fc-event {
-    /* background-color: rgba(0, 0, 0, 0.6); */
-    color: white;
-    backdrop-filter: blur(5px);
+html,
+body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
 }
 
-/* Event text */
-.fc-event-title {
-    text-align: center;
-    color: rgb(255, 255, 255);
+body {
+    display: grid;
+    grid-template-rows: 7vh 43vh 50vh;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Inter", "DejaVu Sans", Arial, sans-serif;
+    font-feature-settings: "tnum";
 }
 
-.fc-event-title-container {
+/* Header */
+.topbar {
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: space-between;
+    padding: 0 4vh;
+    border-bottom: 0.25vh solid var(--gold);
 }
 
-/* Remove box border */
-.fc-v-event {
+.logo {
+    height: 55%;
+}
+
+.clock {
+    text-align: right;
+    line-height: 1.1;
+}
+
+.clock-time {
+    font-size: 3.2vh;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+.clock-date {
+    font-size: 1.3vh;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--gold-deep);
+}
+
+/* Calendar */
+.calendar-panel {
+    padding: 1.5vh 2vh 1vh;
+    overflow: hidden;
+}
+
+#calendar {
+    height: 100%;
+}
+
+.fc {
+    font-size: 1.2vh;
+}
+
+/* No outer frame, light inner grid */
+.fc-theme-standard .fc-scrollgrid {
     border: none;
-
 }
-.fc-h-event {
+
+.fc-theme-standard th {
+    border-color: transparent;
+}
+
+.fc .fc-scroller {
+    overflow: hidden !important;
+}
+
+/* Week days */
+.fc .fc-col-header-cell-cushion {
+    display: inline-block;
+    padding: 0.4vh 1vh;
+    margin-bottom: 0.6vh;
+    border-radius: 99vh;
+    color: var(--gold);
+    font-weight: 700;
+    font-size: 1.2vh;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.fc .fc-day-today .fc-col-header-cell-cushion {
+    background: var(--gold);
+    color: #ffffff;
+}
+
+.fc .fc-day-today {
+    background: none;
+}
+
+/* Hours and "all-day" */
+.fc .fc-timegrid-slot-label-cushion,
+.fc .fc-timegrid-axis-cushion {
+    color: var(--muted);
+    font-size: 1vh;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.fc .fc-timegrid-slot-minor {
+    border-top-style: none;
+}
+
+/* Events */
+.fc .fc-event {
     border: none;
+    border-radius: 0.6vh;
+    box-shadow: 0 0.1vh 0.3vh rgba(42, 38, 34, 0.15);
 }
 
-/* Remove white box shadow */
-.fc-timegrid-event-harness-inset .fc-timegrid-event {
-    box-shadow: none;
+.fc .fc-timegrid-event-harness-inset .fc-timegrid-event {
+    box-shadow: 0 0 0 0.15vh var(--bg);
 }
 
-/* Hours Text */
-.fc-timegrid-slot-label-cushion {
-    color: gray;
-    font-size: 12px;
-    text-transform: uppercase;
+.fc .fc-event-main {
+    padding: 0.3vh 0.6vh;
 }
 
-/* Week Days Text */
-.fc-col-header-cell-cushion {
-    color: #bfa26a;
-    font-size: 12px;
-    text-transform: uppercase;
-}
-
-/* All Day  */
-.fc-timegrid-axis-cushion {
-    color: gray;
-    font-size: 12px;
-    text-transform: uppercase;
+.fc .fc-event-title {
+    font-weight: 600;
+    font-size: 1.15vh;
+    line-height: 1.25;
+    white-space: normal;
+    overflow-wrap: break-word;
+    /* Number of lines is set per event in calendar.js so text never gets cut mid-line */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 /* Disables showing time in event title */
-.fc-event-time {
+.fc .fc-event-time {
     display: none;
 }
 
-/* Rest of the Project */
-#calendar {
-    width: 100%;
-    height: 100%;
+.fc .fc-timegrid-now-indicator-line {
+    border-width: 0.2vh 0 0;
 }
 
-.fullscreen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    overflow: auto;
-}
-
-.box {
-    height: 50vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    position: relative;
-}
-
-.calendar-background {
-    background-image: url("../pandenlogo.png");
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-}
-
+/* Slideshow */
 .slideshow {
-    position: absolute;
-    object-fit: cover;
-    height: 100%;
-    width: 100%;
+    position: relative;
+    overflow: hidden;
+    border-top: 0.25vh solid var(--gold);
 }
 
-.top {
+.slide {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    /* Keep each slide on its own GPU layer so the fade is a cheap compositor operation */
+    will-change: opacity;
+}
+
+.slide.placeholder {
+    object-fit: contain;
+    padding: 18vh 12vh;
+}
+
+/* The incoming slide fades in on top; the outgoing one is hidden instantly once covered */
+.slide.is-front {
     z-index: 1;
 }
 
-.fade-in {
+.slide.is-visible {
     opacity: 1;
-    transition: opacity 3s;
-}
-
-.fade-out {
-    opacity: 0;
-    transition: opacity 3s;
+    transition: opacity var(--fade) ease-in-out;
 }
