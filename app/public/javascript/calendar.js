@@ -15,6 +15,9 @@ function startCalendar(config) {
         dayHeaderFormat: { weekday: 'short', day: 'numeric' },
         slotLabelFormat: { hour: 'numeric', meridiem: 'short' },
         eventDidMount: clampEventTitle,
+        // The first layout sizes the hour rows before the all-day events are in, so the last
+        // hours get pushed off the bottom; measure again once they're shown
+        eventsSet: () => requestAnimationFrame(() => calendar.updateSize()),
 
         // FullCalendar asks for the visible range; keep showing the last good events if a fetch fails
         events: async (info, success) => {
