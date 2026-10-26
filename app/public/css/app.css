@@ -1,6 +1,6 @@
 /*
  * Sizes use vh so the layout looks the same at 1080p or 4K and at any display scale.
- * Layout (portrait): header 7vh, calendar 43vh, slideshow 50vh.
+ * Layout (portrait): header 4vh, calendar 46vh, slideshow 50vh.
  */
 :root {
     --bg: #ffffff;
@@ -33,7 +33,7 @@ body {
 
 body {
     display: grid;
-    grid-template-rows: 7vh 43vh 50vh;
+    grid-template-rows: 4vh 46vh 50vh;
     background: var(--bg);
     color: var(--ink);
     /* Matches the logo's lettering. On the Pi, Arial is provided by Liberation Sans. */
@@ -46,30 +46,31 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 4vh;
-    border-bottom: 0.25vh solid var(--gold);
+    padding: 0 2vh;
+    border-bottom: 0.2vh solid var(--gold);
 }
 
 .logo {
-    height: 55%;
+    height: 85%;
 }
 
+/* Date and time on one line to keep the header slim */
 .clock {
-    text-align: right;
-    line-height: 1.1;
+    display: flex;
+    align-items: baseline;
+    gap: 1.5vh;
+    line-height: 1;
 }
 
 .clock-time {
-    font-size: 3.2vh;
+    font-size: 2vh;
     font-weight: 400;
     letter-spacing: 0.02em;
 }
 
-/* Wide tracking like "C O N S T R U C T I O N" in the logo; the negative margin cancels the
-   trailing letter space so the text still lines up on the right */
+/* Wide tracking like "C O N S T R U C T I O N" in the logo */
 .clock-date {
-    margin-right: -0.3em;
-    font-size: 1.2vh;
+    font-size: 1.1vh;
     font-weight: 400;
     text-transform: uppercase;
     letter-spacing: 0.3em;
@@ -78,7 +79,7 @@ body {
 
 /* Calendar */
 .calendar-panel {
-    padding: 1.5vh 2vh 1vh;
+    padding: 0.8vh 1.5vh 0.6vh;
     overflow: hidden;
 }
 
@@ -108,7 +109,7 @@ body {
     display: inline-block;
     /* Extra left padding balances the trailing letter space */
     padding: 0.4vh 1vh 0.4vh calc(1vh + 0.3em);
-    margin-bottom: 0.6vh;
+    margin-bottom: 0.3vh;
     border-radius: 99vh;
     color: var(--gold-deep);
     font-weight: 400;
