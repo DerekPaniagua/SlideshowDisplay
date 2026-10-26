@@ -32,7 +32,7 @@ install_packages() {
     apt-get install -y --no-install-recommends \
         git curl jq ca-certificates \
         labwc wlr-randr wlrctl grim \
-        "$browser" fonts-inter fonts-dejavu-core \
+        "$browser" fonts-liberation fonts-dejavu-core \
         rpi-connect
 
     if ! node -v 2>/dev/null | grep -q "^v$NODE_MAJOR\."; then
