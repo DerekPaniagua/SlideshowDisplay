@@ -26,8 +26,16 @@ function load_config() {
         }
     }
 
+    // --local-images=<folder> shows photos from a folder instead of Google Drive (for testing)
+    const local_arg = process.argv.find(arg => arg.startsWith('--local-images='));
+    if (local_arg) {
+        config.local_images_dir = path.resolve(local_arg.split('=')[1]);
+        console.info(`Using local images from ${config.local_images_dir}`);
+    }
+
     config.config_dir = CONFIG_DIR;
-    config.cache_dir = CACHE_DIR;
+    // Separate cache so switching between local and Drive images doesn't wipe the other
+    config.cache_dir = local_arg ? `${CACHE_DIR}-local` : CACHE_DIR;
     config.credentials_path = path.join(CONFIG_DIR, 'credentials.json');
     return config;
 }

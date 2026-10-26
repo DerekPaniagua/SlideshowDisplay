@@ -5,6 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const SUPPORTED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+const LOCAL_TYPES = { '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.gif': 'image/gif', '.webp': 'image/webp' };
 const MANIFEST = 'manifest.json';
 
 // Long-running process on a Pi: don't let libvips hold on to decoded images
@@ -54,6 +55,37 @@ async function list_drive_images() {
         .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
 }
 
+// Local folder instead of Drive, for testing (npm run start:local)
+function list_local_images() {
+    fs.mkdirSync(config.local_images_dir, { recursive: true });
+    return fs.readdirSync(config.local_images_dir)
+        .filter(name => LOCAL_TYPES[path.extname(name).toLowerCase()])
+        .map(name => {
+            const stat = fs.statSync(path.join(config.local_images_dir, name));
+            return {
+                id: `local-${crypto.createHash('sha1').update(name).digest('hex').slice(0, 12)}`,
+                name,
+                mimeType: LOCAL_TYPES[path.extname(name).toLowerCase()],
+                modifiedTime: stat.mtime.toISOString(),
+                md5Checksum: String(stat.size),
+            };
+        })
+        .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+}
+
+async function list_images() {
+    return config.local_images_dir ? list_local_images() : list_drive_images();
+}
+
+async function read_image(file) {
+    if (config.local_images_dir) return fs.promises.readFile(path.join(config.local_images_dir, file.name));
+    const response = await get_drive().files.get(
+        { fileId: file.id, alt: 'media' },
+        { responseType: 'arraybuffer' }
+    );
+    return Buffer.from(response.data);
+}
+
 // The name changes whenever the file or the render settings change, so cached files can be
 // served with long-lived cache headers.
 function cache_name(file) {
@@ -65,15 +97,12 @@ function cache_name(file) {
 }
 
 async function download_and_convert(file, name) {
-    const response = await get_drive().files.get(
-        { fileId: file.id, alt: 'media' },
-        { responseType: 'arraybuffer' }
-    );
+    const input = await read_image(file);
 
     // Download errors are retried next sync; conversion errors are remembered
     try {
         const animated = file.mimeType === 'image/gif';
-        let image = sharp(Buffer.from(response.data), { animated });
+        let image = sharp(input, { animated });
         if (!animated) image = image.rotate(); // respect EXIF orientation from phones
 
         const tmp_path = path.join(config.cache_dir, `${name}.tmp`);
@@ -92,7 +121,7 @@ async function sync_images() {
     if (syncing) return;
     syncing = true;
     try {
-        const files = await list_drive_images();
+        const files = await list_images();
         const names = [];
         for (const file of files) {
             const name = cache_name(file);

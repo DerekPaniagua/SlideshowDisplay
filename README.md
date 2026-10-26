@@ -41,6 +41,7 @@ Requires Node 22+. Put the Google service account key at `app/data/credentials.j
 ```bash
 npm install
 npm start          # http://localhost:3000, restarts on changes
+npm run start:local  # same, but photos come from app/dev-images/ instead of Google Drive
 ```
 
 To preview the 4K portrait layout, open the page in a 1080×1920 browser window (device toolbar in Chrome DevTools).

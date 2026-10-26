@@ -6,6 +6,7 @@
   "private": true,
   "scripts": {
     "start": "node --watch app/app.js",
+    "start:local": "node --watch app/app.js --local-images=app/dev-images",
     "start:prod": "node app/app.js"
   },
   "engines": {

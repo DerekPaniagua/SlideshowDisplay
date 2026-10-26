@@ -9,5 +9,7 @@ node_modules
 **/credentials.json
 
 /app/cache
+/app/cache-local
+/app/dev-images
 /app/images
 .DS_Store
