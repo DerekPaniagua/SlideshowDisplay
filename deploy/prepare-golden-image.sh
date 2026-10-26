@@ -1,22 +1,20 @@
 #!/bin/bash
 # Run right before shutting down to capture the golden image. Removes this Pi's identity
-# (Tailscale node, Pi Connect sign-in, SSH host keys, machine id) so every card flashed from
+# (Tailscale node, SSH host keys, machine id) so every card flashed from
 # the image sets itself up fresh on first boot. See docs/SETUP.md.
 set -uo pipefail
 . /opt/slideshow/deploy/lib.sh
 [ "$(id -u)" -eq 0 ] || die "Run with sudo"
 
 cat <<EOF
-This removes this card's Tailscale login, Pi Connect sign-in, SSH host keys and machine id,
+This removes this card's Tailscale login, SSH host keys and machine id,
 then shuts down. Afterwards, capture the card as the golden image.
 If you boot this card again, it will need a new tailscale-authkey.txt to rejoin Tailscale.
 EOF
 read -r -p "Continue? [y/N] " answer
 [ "$answer" = y ] || [ "$answer" = Y ] || exit 1
 
-log "Signing out of Raspberry Pi Connect and Tailscale..."
-uid=$(id -u "$KIOSK_USER")
-sudo -u "$KIOSK_USER" XDG_RUNTIME_DIR="/run/user/$uid" rpi-connect signout 2>/dev/null
+log "Signing out of Tailscale..."
 tailscale logout 2>/dev/null
 
 log "Removing machine identity..."

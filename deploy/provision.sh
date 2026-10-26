@@ -33,7 +33,7 @@ install_packages() {
         git curl jq ca-certificates \
         labwc wlr-randr wlrctl grim \
         "$browser" fonts-liberation fonts-dejavu-core \
-        rpi-connect
+        wayvnc
 
     if ! node -v 2>/dev/null | grep -q "^v$NODE_MAJOR\."; then
         log "Installing Node.js $NODE_MAJOR..."
@@ -109,9 +109,6 @@ fi
 # <<< slideshow kiosk <<<
 EOF
     chown "$KIOSK_USER:" "$profile"
-
-    # Lets Raspberry Pi Connect run as this user
-    loginctl enable-linger "$KIOSK_USER"
 }
 
 if [ "${1:-}" = "--system" ]; then
@@ -132,6 +129,5 @@ cat <<EOF
 Done! Next steps:
   1. Put credentials.json (and optionally wifi.txt, tailscale-authkey.txt) in $CONFIG_DIR
   2. Reboot:                     sudo reboot
-  3. Sign in to Pi Connect:      rpi-connect signin
-  4. Check everything:           slideshow status
+  3. Check everything:           slideshow status
 EOF

@@ -13,7 +13,7 @@ saved result of running it. If the image is ever lost, follow Part 1 again to re
 - A good SD card, 32 GB or more (A2 / "high endurance" types last longer).
 - The Google service account key: `credentials.json`.
 - A free [Tailscale](https://tailscale.com) account, with Tailscale installed on your PC and phone.
-- A free [Raspberry Pi ID](https://id.raspberrypi.com) for Raspberry Pi Connect (remote screen view).
+- A VNC viewer on your PC for remote screen viewing, e.g. [TigerVNC](https://tigervnc.org).
 
 ## Part 1: Build and test a display
 
@@ -67,13 +67,10 @@ sudo reboot
 After it boots, open the Tailscale admin console → **Machines** → `office-display` → **⋯** →
 **Disable key expiry**, so it never drops off your network.
 
-### 4. Turn on remote screen viewing
+### 4. Try remote screen viewing
 
-```bash
-rpi-connect signin       # open the link it prints and approve
-```
-
-The Pi now appears at [connect.raspberrypi.com](https://connect.raspberrypi.com) with **screen sharing**.
+Screen sharing (VNC) is set up automatically. Follow "Seeing the screen" in
+[OPERATIONS.md](OPERATIONS.md) to check you can see the display from your PC.
 
 ### 5. Test checklist
 
@@ -83,7 +80,7 @@ Do this at home on the test Pi, then once more on the office Pi with the real TV
 - [ ] Photos rotate and the calendar shows this week's events
 - [ ] `slideshow status` shows everything OK, including **Power/throttling: OK**
 - [ ] With your phone on cellular (off your home network): `ssh <user>@office-display` works over Tailscale
-- [ ] Pi Connect screen sharing shows the display
+- [ ] VNC over the SSH tunnel shows the display, the right way up
 - [ ] Unplug the network cable / turn off Wi-Fi: photos and calendar keep showing
 - [ ] Pull the power and plug it back in: display comes back on its own
 - [ ] `sudo slideshow update` reports "Already up to date"
@@ -104,7 +101,7 @@ Watch a few photo fades. If they stutter, step down in `display.env`, running
    ```bash
    sudo bash /opt/slideshow/deploy/prepare-golden-image.sh
    ```
-   This signs the card out of Tailscale and Pi Connect, removes its SSH keys and machine ID (each
+   This signs the card out of Tailscale, removes its SSH keys and machine ID (each
    flashed card makes its own), then shuts down. Cached photos are kept, so a new card shows photos
    right away, even offline.
 
@@ -135,7 +132,6 @@ Watch a few photo fades. If they stutter, step down in `display.env`, running
 4. SSH in, then:
    ```bash
    sudo slideshow update     # bring the code up to date; the image may be old
-   rpi-connect signin        # optional: remote screen view
    ```
    In Tailscale, disable key expiry for the new machine.
 

@@ -8,8 +8,23 @@ With Tailscale running on your PC or phone, from anywhere:
 ssh <user>@office-display
 ```
 
-**See the screen:** [connect.raspberrypi.com](https://connect.raspberrypi.com) → the display →
-**Screen sharing**. Or take a screenshot: `slideshow screenshot`, then from your PC
+## Seeing the screen (VNC)
+
+The Pi shares its screen over VNC, reachable only through an SSH tunnel, so nobody on the office
+network can get to it. You need a VNC viewer on your PC, e.g. [TigerVNC](https://tigervnc.org)
+or [RealVNC Viewer](https://www.realvnc.com/en/connect/download/viewer/).
+
+1. Open the tunnel and leave this window open:
+   ```powershell
+   ssh -N -L 5901:localhost:5900 <user>@office-display
+   ```
+2. In the VNC viewer, connect to `localhost:5901`. If it warns that the connection isn't
+   encrypted, that's expected: the traffic travels inside the encrypted SSH tunnel.
+3. Close the viewer, then press Ctrl+C in the tunnel window, when you're done.
+
+Clicks and typing in the viewer affect the real screen, so for just looking, keep your hands off.
+
+For a quick still image instead: `slideshow screenshot`, then from your PC
 `scp <user>@office-display:screenshot.png .`
 
 ## The `slideshow` command

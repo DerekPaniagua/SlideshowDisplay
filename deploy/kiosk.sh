@@ -4,10 +4,6 @@
 . /opt/slideshow/deploy/lib.sh
 load_display_env
 
-# Let user services (Raspberry Pi Connect screen sharing) find this session
-systemctl --user import-environment WAYLAND_DISPLAY XDG_RUNTIME_DIR 2>/dev/null
-dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_RUNTIME_DIR 2>/dev/null
-
 configure_output() {
     local output args
     output=${DISPLAY_OUTPUT:-$(wlr-randr | awk '/^[^ ]/ { print $1; exit }')}
@@ -24,6 +20,16 @@ configure_output() {
 hide_pointer() {
     # The page hides the cursor too, but move it out of the way in case it's drawn before load
     wlrctl pointer move 100000 100000 2>/dev/null
+}
+
+# Remote screen viewing. Only reachable from the Pi itself, so it needs no password: connect
+# through an SSH tunnel over Tailscale (see docs/OPERATIONS.md).
+run_vnc() {
+    while true; do
+        wayvnc 127.0.0.1 5900
+        log "wayvnc exited (code $?), restarting in 10 seconds"
+        sleep 10
+    done
 }
 
 CHROMIUM=$(command -v chromium || command -v chromium-browser)
@@ -46,6 +52,7 @@ CHROMIUM_FLAGS=(
 
 configure_output
 hide_pointer
+run_vnc &
 
 while true; do
     log "Waiting for the display server..."

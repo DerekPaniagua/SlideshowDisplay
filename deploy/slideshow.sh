@@ -38,6 +38,7 @@ case "$cmd" in
         echo
         echo "== Screen"
         if pgrep -x chromium >/dev/null || pgrep -f chromium-browser >/dev/null; then echo "Chromium running"; else echo "Chromium NOT running"; fi
+        if ss -ltn 2>/dev/null | grep -q '127.0.0.1:5900 '; then echo "VNC ready (see docs/OPERATIONS.md)"; else echo "VNC NOT running"; fi
         echo
         echo "== Code"
         as_user git -C "$APP_DIR" log -1 --format='%h %s (%cr)'
