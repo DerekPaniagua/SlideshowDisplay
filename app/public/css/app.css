@@ -1,6 +1,6 @@
 /*
  * Sizes use vh so the layout looks the same at 1080p or 4K and at any display scale.
- * Layout (portrait): header 4vh, calendar 46vh, slideshow 50vh.
+ * Layout (portrait): header 3.4vh, calendar 46.6vh, slideshow 50vh.
  */
 :root {
     --bg: #ffffff;
@@ -33,7 +33,7 @@ body {
 
 body {
     display: grid;
-    grid-template-rows: 4vh 46vh 50vh;
+    grid-template-rows: 3.4vh 46.6vh 50vh;
     background: var(--bg);
     color: var(--ink);
     /* Matches the logo's lettering. On the Pi, Arial is provided by Liberation Sans. */
@@ -63,14 +63,14 @@ body {
 }
 
 .clock-time {
-    font-size: 2vh;
+    font-size: 1.8vh;
     font-weight: 400;
     letter-spacing: 0.02em;
 }
 
 /* Wide tracking like "C O N S T R U C T I O N" in the logo */
 .clock-date {
-    font-size: 1.1vh;
+    font-size: 1vh;
     font-weight: 400;
     text-transform: uppercase;
     letter-spacing: 0.3em;
@@ -79,7 +79,7 @@ body {
 
 /* Calendar */
 .calendar-panel {
-    padding: 0.8vh 1.5vh 0.6vh;
+    padding: 0.6vh 1.5vh 0.5vh;
     overflow: hidden;
 }
 
@@ -108,12 +108,12 @@ body {
 .fc .fc-col-header-cell-cushion {
     display: inline-block;
     /* Extra left padding balances the trailing letter space */
-    padding: 0.4vh 1vh 0.4vh calc(1vh + 0.3em);
-    margin-bottom: 0.3vh;
+    padding: 0.3vh 1vh 0.3vh calc(1vh + 0.3em);
+    margin-bottom: 0.2vh;
     border-radius: 99vh;
     color: var(--gold-deep);
     font-weight: 400;
-    font-size: 1.2vh;
+    font-size: 1.1vh;
     letter-spacing: 0.3em;
     text-transform: uppercase;
 }
